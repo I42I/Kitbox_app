@@ -10,10 +10,10 @@ Student project for Software Engineering course at ECAM Brussels. The KitBox pro
 [How to use the application]
 
 ## Contributors
-Masureel Bruno
-Pierre Louis
-Delecluse Simon
-Scaife Niall
+Masureel Bruno\
+Pierre Louis\
+Delecluse Simon\
+Scaife Niall\
 Yaya Libis Issakha
 
 ## License
