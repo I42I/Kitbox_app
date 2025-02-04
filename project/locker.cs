@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 
-public class Lockers
+public class Locker
 {
     public List<Box> Boxes { get; set; } // here i make a list of boxes to make the lockers
 
-    public Lockers()
+    public Locker()
     {
         Boxes = new List<Box>();
     }

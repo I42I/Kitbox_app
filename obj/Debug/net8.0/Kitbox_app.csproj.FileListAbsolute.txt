@@ -1,0 +1,2 @@
+C:\Users\louis\OneDrive\Bureau\ECAM\Software enginering 2\projet\Kitbox_app\obj\Debug\net8.0\Kitbox_app.csproj.AssemblyReference.cache
+C:\Users\louis\OneDrive\Bureau\ECAM\Software enginering 2\projet\Kitbox_app\obj\Debug\net8.0\Avalonia\Resources.Inputs.cache

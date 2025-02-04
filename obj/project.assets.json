@@ -1520,19 +1520,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Masur\\.nuget\\packages\\": {}
+    "C:\\Users\\louis\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\ECAM\\BAC 3\\Génie Logiciel\\Kitbox_app\\Kitbox_app.csproj",
+      "projectUniqueName": "C:\\Users\\louis\\OneDrive\\Bureau\\ECAM\\Software enginering 2\\projet\\Kitbox_app\\Kitbox_app.csproj",
       "projectName": "Kitbox_app",
-      "projectPath": "c:\\ECAM\\BAC 3\\Génie Logiciel\\Kitbox_app\\Kitbox_app.csproj",
-      "packagesPath": "C:\\Users\\Masur\\.nuget\\packages\\",
-      "outputPath": "c:\\ECAM\\BAC 3\\Génie Logiciel\\Kitbox_app\\obj\\",
+      "projectPath": "C:\\Users\\louis\\OneDrive\\Bureau\\ECAM\\Software enginering 2\\projet\\Kitbox_app\\Kitbox_app.csproj",
+      "packagesPath": "C:\\Users\\louis\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\louis\\OneDrive\\Bureau\\ECAM\\Software enginering 2\\projet\\Kitbox_app\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Masur\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\louis\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"

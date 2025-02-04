@@ -17,4 +17,31 @@
 
     <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-</Window>
+</Window> 
+
+
+<ItemsControl Items="{Binding Boxes}">
+    <ItemsControl.ItemTemplate>
+        <DataTemplate>
+            <Border BorderBrush="Black" BorderThickness="2" Margin="5" Padding="10">
+                <StackPanel>
+                    <TextBlock Text="Box:" FontWeight="Bold"/>
+                    <TextBlock Text="Hauteur: " Foreground="Black"/>
+                    <TextBlock Text="{Binding Face1.Height}" />
+                    
+                    <TextBlock Text="Couleur Face 1: " Foreground="Black"/>
+                    <TextBlock Text="{Binding Face1.Color}" />
+                    
+                    <TextBlock Text="Couleur Face 2: " Foreground="Black"/>
+                    <TextBlock Text="{Binding Face2.Color}" />
+
+                    <TextBlock Text="Couleur Face 3: " Foreground="Black"/>
+                    <TextBlock Text="{Binding Face3.Color}" />
+
+                    <TextBlock Text="Couleur Face 4: " Foreground="Black"/>
+                    <TextBlock Text="{Binding Face4.Color}" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+    </ItemsControl.ItemTemplate>
+</ItemsControl>

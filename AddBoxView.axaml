@@ -1,0 +1,32 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="Kitbox_app.ViewModels"
+        x:Class="Kitbox_app.Views.AddBoxView"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.DataContext>
+        <vm:AddBoxViewModel/>
+    </Window.DataContext>
+
+    <StackPanel>
+        <TextBlock Text="Configurer la Box:" FontWeight="Bold"/>
+        
+        <TextBlock Text="Hauteur Unique:"/>
+        <TextBox Text="{Binding Height, Mode=TwoWay}"/>
+
+        <TextBlock Text="Couleur Face 1:"/>
+        <TextBox Text="{Binding Color1, Mode=TwoWay}"/>
+
+        <TextBlock Text="Couleur Face 2:"/>
+        <TextBox Text="{Binding Color2, Mode=TwoWay}"/>
+
+        <TextBlock Text="Couleur Face 3:"/>
+        <TextBox Text="{Binding Color3, Mode=TwoWay}"/>
+
+        <TextBlock Text="Couleur Face 4:"/>
+        <TextBox Text="{Binding Color4, Mode=TwoWay}"/>
+
+        <Button Content="Valider" Command="{Binding ValidateCommand}" 
+                IsDefault="True" Click="OnValidateClick"/>
+    </StackPanel>
+</Window>

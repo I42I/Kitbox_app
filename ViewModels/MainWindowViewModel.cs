@@ -1,8 +1,24 @@
-﻿namespace Kitbox_app.ViewModels;
+﻿using System.Reactive;
+using ReactiveUI;
+using Avalonia.Controls;
+using Kitbox_app.Views;
+
+namespace Kitbox_app.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-#pragma warning disable CA1822 // Mark members as static
     public string Greeting => "Welcome to Avalonia!";
-#pragma warning restore CA1822 // Mark members as static
+    
+    public ReactiveCommand<Window, Unit> AddBoxCommand { get; }
+
+    public MainWindowViewModel()
+    {
+        AddBoxCommand = ReactiveCommand.Create<Window>(OpenAddBoxDialog);
+    }
+
+    private async void OpenAddBoxDialog(Window owner)
+    {
+        var dialog = new AddBoxView();
+        await dialog.ShowDialog(owner);
+    }
 }

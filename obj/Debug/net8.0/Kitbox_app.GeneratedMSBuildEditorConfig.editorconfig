@@ -15,12 +15,15 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Kitbox_app
-build_property.ProjectDir = C:\ECAM\BAC 3\Génie Logiciel\Kitbox_app\
+build_property.ProjectDir = C:\Users\louis\OneDrive\Bureau\ECAM\Software enginering 2\projet\Kitbox_app\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 
-[C:/ECAM/BAC 3/Génie Logiciel/Kitbox_app/App.axaml]
+[C:/Users/louis/OneDrive/Bureau/ECAM/Software enginering 2/projet/Kitbox_app/AddBoxView.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[C:/ECAM/BAC 3/Génie Logiciel/Kitbox_app/Views/MainWindow.axaml]
+[C:/Users/louis/OneDrive/Bureau/ECAM/Software enginering 2/projet/Kitbox_app/App.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[C:/Users/louis/OneDrive/Bureau/ECAM/Software enginering 2/projet/Kitbox_app/Views/MainWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml

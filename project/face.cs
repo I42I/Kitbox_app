@@ -10,11 +10,17 @@ public class Face
         Color = color;
         Height = height;
     }
-
+    
     public void SetHeight(double height)
     {
+        if (height <= 0)
+        {
+            throw new ArgumentException("La hauteur doit être positive.");
+        }
         Height = height;
     }
+
+
 
     public void SetColor(string color)
     {
