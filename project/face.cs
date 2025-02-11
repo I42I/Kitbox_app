@@ -15,7 +15,7 @@ public class Face
     {
         if (height <= 0)
         {
-            throw new ArgumentException("La hauteur doit être positive.");
+            throw new ArgumentException("height must be greater than 0");
         }
         Height = height;
     }

@@ -1,7 +1,9 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿// using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Kitbox_app.ViewModels;
+// namespace Kitbox_app.ViewModels;
 
-public class ViewModelBase : ObservableObject
-{
-}
+// public class ViewModelBase : ObservableObject
+// {
+// }
+
+// Niall Gere cetta partie
