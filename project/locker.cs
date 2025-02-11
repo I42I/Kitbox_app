@@ -8,6 +8,8 @@ public class Locker
     public Locker()
     {
         Boxes = new List<Box>();
+        Depth = depth;
+        Width = width;
     }
 
     public void AddBox(Box box)
