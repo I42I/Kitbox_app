@@ -1,11 +1,4 @@
 is_global = true
-build_property.AvaloniaNameGeneratorIsEnabled = true
-build_property.AvaloniaNameGeneratorBehavior = InitializeComponent
-build_property.AvaloniaNameGeneratorDefaultFieldModifier = internal
-build_property.AvaloniaNameGeneratorFilterByPath = *
-build_property.AvaloniaNameGeneratorFilterByNamespace = *
-build_property.AvaloniaNameGeneratorViewFileNamingStrategy = NamespaceAndClassName
-build_property.AvaloniaNameGeneratorAttachDevTools = true
 build_property.TargetFramework = net8.0
 build_property.TargetPlatformMinVersion = 
 build_property.UsingMicrosoftNETSdkWeb = 
@@ -15,12 +8,8 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Kitbox_app
-build_property.ProjectDir = C:\ECAM\BAC 3\Génie Logiciel\Kitbox_app\
+build_property.ProjectDir = C:\Users\niall\Source\Repos\Kitbox_app\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
-
-[C:/ECAM/BAC 3/Génie Logiciel/Kitbox_app/App.axaml]
-build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
-
-[C:/ECAM/BAC 3/Génie Logiciel/Kitbox_app/Views/MainWindow.axaml]
-build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
