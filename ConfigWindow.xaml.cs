@@ -11,11 +11,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using Kitbox;
+using Kitbox_app;
 
 
 
-namespace Kitbox
+namespace Kitbox_app
 {
     public partial class ConfigWindow : Window
     {
@@ -124,7 +124,7 @@ namespace Kitbox
             {
                 lockers[currentLockerIndex].Height = newHeight;
 
-                if (CalculateTotalHeight() > MAX_HEIGHT)
+                if (CalculateTotalHeight(lockers.Count) > MAX_HEIGHT)  // Changed this line
                 {
                     MessageBox.Show("Commande impossible : hauteur totale dépassée (max : 333,33 cm) !", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
                     lockers[currentLockerIndex].Height = 32; // Réinitialisation
@@ -135,7 +135,6 @@ namespace Kitbox
 
 
         // Calcul de la hauteur totale
-        
         private double CalculateTotalHeight(int count)
         {
             return lockers.Take(count).Sum(locker => locker.Height);
@@ -170,7 +169,7 @@ namespace Kitbox
         public int Height { get; set; }
         public int Width { get; set; }
         public int Depth { get; set; }
-        public string Color { get; set; }
+        public string? Color { get; set; }
         public bool HasDoors { get; set; }
     }
 }

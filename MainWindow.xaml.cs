@@ -9,10 +9,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System;
-using KitBox;
+using Kitbox_app;
 
 
-namespace Kitbox
+namespace Kitbox_app
 {
     public partial class MainWindow : Window
     {

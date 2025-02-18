@@ -1,4 +1,4 @@
-﻿<Window x:Class="Kitbox.MainWindow"
+﻿<Window x:Class="Kitbox_app.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Kitbox - Home" Height="400" Width="600">
