@@ -1,0 +1,31 @@
+<Page x:Class="Kitbox_app.HomePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Home">
+    <Grid Background="#F0F0F0">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock Text="Welcome to Kitbox"
+                      FontSize="24" FontWeight="Bold"
+                      HorizontalAlignment="Center"
+                      Margin="0,0,0,20"/>
+
+            <Button Content="Créer une armoire"
+                    Width="200" Height="50"
+                    Background="SteelBlue" Foreground="White"
+                    Click="BtnCreateCabinet_Click"
+                    Margin="0,10"/>
+
+            <Button Content="Voir mes commandes"
+                    Width="200" Height="50"
+                    Background="DarkSlateBlue" Foreground="White"
+                    Click="BtnViewOrders_Click"
+                    Margin="0,10"/>
+
+            <Button Content="Se connecter"
+                    Width="200" Height="50"
+                    Background="DarkGray" Foreground="White"
+                    Click="BtnLogin_Click"
+                    Margin="0,10"/>
+        </StackPanel>
+    </Grid>
+</Page>

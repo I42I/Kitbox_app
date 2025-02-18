@@ -117,8 +117,11 @@ namespace Kitbox_app
         // Return to Manager Menu
         private void BackToManager_Click(object sender, RoutedEventArgs e)
         {
-            ManagerWindow managerWindow = new ManagerWindow();
-            managerWindow.Show();
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            if (mainWindow?.MainFrame != null)
+            {
+                mainWindow.MainFrame.Navigate(new ManagerPage());
+            }
             this.Close();
         }
     }

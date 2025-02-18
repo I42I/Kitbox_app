@@ -1,29 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Kitbox_app;
-
-
 
 namespace Kitbox_app
 {
-    public partial class ConfigWindow : Window
+    public partial class ConfigPage : Page
     {
         private int currentLockerIndex = 0;
         private List<Locker> lockers = new List<Locker>();
-        private const double MAX_HEIGHT = 333.33;  // Hauteur maximale autorisée
+        private const double MAX_HEIGHT = 333.33;
 
-        public ConfigWindow()
+        public ConfigPage()
         {
             InitializeComponent();
             InitializeLockers(1);
@@ -51,7 +40,6 @@ namespace Kitbox_app
             UpdateLockerDisplay();
         }
 
-
         // Met à jour l'affichage du casier actuel
         private void UpdateLockerDisplay()
         {
@@ -78,7 +66,6 @@ namespace Kitbox_app
                 DepthInput.IsEnabled = false;
             }
         }
-
 
         // Modification du nombre de casiers
         private void LockerCount_Changed(object sender, SelectionChangedEventArgs e)
@@ -124,7 +111,7 @@ namespace Kitbox_app
             {
                 lockers[currentLockerIndex].Height = newHeight;
 
-                if (CalculateTotalHeight(lockers.Count) > MAX_HEIGHT)  // Changed this line
+                if (CalculateTotalHeight(lockers.Count) > MAX_HEIGHT)
                 {
                     MessageBox.Show("Commande impossible : hauteur totale dépassée (max : 333,33 cm) !", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
                     lockers[currentLockerIndex].Height = 32; // Réinitialisation
@@ -133,14 +120,11 @@ namespace Kitbox_app
             }
         }
 
-
         // Calcul de la hauteur totale
         private double CalculateTotalHeight(int count)
         {
             return lockers.Take(count).Sum(locker => locker.Height);
         }
-        
-
 
         // Ajout au panier
         private void AddToCart_Click(object sender, RoutedEventArgs e)
@@ -157,9 +141,7 @@ namespace Kitbox_app
         // Retour au menu principal
         private void BackToMenu_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow mainWindow = new MainWindow();
-            mainWindow.Show();
-            this.Close();
+            NavigationService?.Navigate(new HomePage());
         }
     }
 

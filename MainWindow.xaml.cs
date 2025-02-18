@@ -11,7 +11,6 @@ using System.Windows.Shapes;
 using System;
 using Kitbox_app;
 
-
 namespace Kitbox_app
 {
     public partial class MainWindow : Window
@@ -19,30 +18,23 @@ namespace Kitbox_app
         public MainWindow()
         {
             InitializeComponent();
+            NavigationService.Initialize(MainFrame);
+            MainFrame.Navigate(new HomePage());
         }
 
         private void BtnCreateCabinet_Click(object sender, RoutedEventArgs e)
         {
-            // Naviguer vers la fenêtre de configuration de l'armoire
-            ConfigWindow configWindow = new ConfigWindow();
-            configWindow.Show();
-            this.Close();
+            MainFrame.Navigate(new ConfigPage());
         }
 
         private void BtnViewOrders_Click(object sender, RoutedEventArgs e)
         {
-            // Naviguer vers la fenêtre de gestion des commandes
-            OrdersWindow ordersWindow = new OrdersWindow();
-            ordersWindow.Show();
-            this.Close();
+            MainFrame.Navigate(new OrdersPage());
         }
 
         private void BtnLogin_Click(object sender, RoutedEventArgs e)
         {
-            // Naviguer vers la fenêtre de connexion (si besoin)
-            LoginWindow loginWindow = new LoginWindow();
-            loginWindow.Show();
-            this.Close();
+            MainFrame.Navigate(new LoginPage());
         }
     }
 }

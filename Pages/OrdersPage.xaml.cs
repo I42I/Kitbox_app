@@ -11,15 +11,13 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Kitbox_app;
 
 namespace Kitbox_app
 {
-    /// <summary>
-    /// Logique d'interaction pour OrdersManagementWindow.xaml
-    /// </summary>
-    public partial class OrdersManagementWindow : Window
+    public partial class OrdersPage : Page
     {
-        public OrdersManagementWindow()
+        public OrdersPage()
         {
             InitializeComponent();
             LoadOrders();
@@ -36,11 +34,9 @@ namespace Kitbox_app
             MessageBox.Show("Liste des commandes mise à jour !");
         }
 
-        private void BackToManager_Click(object sender, RoutedEventArgs e)
+        private void BackToMenu_Click(object sender, RoutedEventArgs e)
         {
-            ManagerWindow managerWindow = new ManagerWindow();
-            managerWindow.Show();
-            this.Close();
+            NavigationService?.Navigate(new HomePage());
         }
     }
 }
