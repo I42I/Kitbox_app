@@ -12,17 +12,17 @@ namespace Kitbox_app
 
         private void ManageOrders_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService?.Navigate(new OrdersManagementWindow());
+            NavigationService?.Navigate(new OrdersManagementPage());
         }
 
         private void ManageStock_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService?.Navigate(new StockManagementWindow());
+            NavigationService?.Navigate(new StockManagementPage());
         }
 
         private void ManageSuppliers_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService?.Navigate(new SupplierManagementWindow());
+            NavigationService?.Navigate(new SupplierManagementPage());
         }
 
         private void Logout_Click(object sender, RoutedEventArgs e)

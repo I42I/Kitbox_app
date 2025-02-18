@@ -10,21 +10,24 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace Kitbox_app
 {
     /// <summary>
-    /// Logique d'interaction pour SupplierManagementWindow.xaml
+    /// Logique d'interaction pour SupplierManagementPage.xaml
     /// </summary>
-    public partial class SupplierManagementWindow : Window
+    public partial class SupplierManagementPage : Page
     {
         private List<Supplier> suppliers = new List<Supplier>();
-        public SupplierManagementWindow()
+
+        public SupplierManagementPage()
         {
             InitializeComponent();
             LoadSuppliers();
         }
+
         // Load Suppliers into the ListBox
         private void LoadSuppliers()
         {
@@ -117,12 +120,7 @@ namespace Kitbox_app
         // Return to Manager Menu
         private void BackToManager_Click(object sender, RoutedEventArgs e)
         {
-            var mainWindow = Application.Current.MainWindow as MainWindow;
-            if (mainWindow?.MainFrame != null)
-            {
-                mainWindow.MainFrame.Navigate(new ManagerPage());
-            }
-            this.Close();
+            NavigationService?.Navigate(new ManagerPage());
         }
     }
 

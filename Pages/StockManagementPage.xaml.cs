@@ -15,27 +15,23 @@ using System.Windows.Shapes;
 namespace Kitbox_app
 {
     /// <summary>
-    /// Logique d'interaction pour StockManagementWindow.xaml
+    /// Logique d'interaction pour StockManagementPage.xaml
     /// </summary>
-    public partial class StockManagementWindow : Window
+    public partial class StockManagementPage : Page
     {
-        public StockManagementWindow()
+        public StockManagementPage()
         {
             InitializeComponent();
         }
-    private void RefreshStock_Click(object sender, RoutedEventArgs e)
+
+        private void RefreshStock_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("Stock mis à jour !");
         }
 
         private void BackToManager_Click(object sender, RoutedEventArgs e)
         {
-            var mainWindow = Application.Current.MainWindow as MainWindow;
-            if (mainWindow?.MainFrame != null)
-            {
-                mainWindow.MainFrame.Navigate(new ManagerPage());
-            }
-            this.Close();
+            NavigationService?.Navigate(new ManagerPage());
         }
     }
 }

@@ -15,11 +15,11 @@ using System.Windows.Shapes;
 namespace Kitbox_app
 {
     /// <summary>
-    /// Logique d'interaction pour OrdersManagementWindow.xaml
+    /// Logique d'interaction pour OrdersManagementPage.xaml
     /// </summary>
-    public partial class OrdersManagementWindow : Window
+    public partial class OrdersManagementPage : Page
     {
-        public OrdersManagementWindow()
+        public OrdersManagementPage()
         {
             InitializeComponent();
             LoadOrders();
@@ -38,12 +38,7 @@ namespace Kitbox_app
 
         private void BackToManager_Click(object sender, RoutedEventArgs e)
         {
-            var mainWindow = Application.Current.MainWindow as MainWindow;
-            if (mainWindow?.MainFrame != null)
-            {
-                mainWindow.MainFrame.Navigate(new ManagerPage());
-            }
-            this.Close();
+            NavigationService?.Navigate(new ManagerPage());
         }
     }
 }
