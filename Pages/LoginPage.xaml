@@ -1,11 +1,11 @@
-﻿<Page x:Class="Kitbox_app.LoginPage"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Kitbox_app"
-        mc:Ignorable="d"
-        Title="Login">
+﻿<Page x:Class="Kitbox_app.Pages.LoginPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:local="clr-namespace:Kitbox_app.Pages"
+      mc:Ignorable="d"
+      Title="Login">
     <Grid Background="#F0F0F0">
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
 

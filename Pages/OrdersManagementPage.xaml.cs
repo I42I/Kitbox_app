@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace Kitbox_app
+namespace Kitbox_app.Pages
 {
     /// <summary>
     /// Logique d'interaction pour OrdersManagementPage.xaml

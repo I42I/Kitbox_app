@@ -4,7 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Kitbox_app
+namespace Kitbox_app.Pages
 {
     public partial class ConfigPage : Page
     {

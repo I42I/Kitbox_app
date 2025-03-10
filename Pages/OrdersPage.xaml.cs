@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Kitbox_app;
 
-namespace Kitbox_app
+namespace Kitbox_app.Pages
 {
     public partial class OrdersPage : Page
     {
