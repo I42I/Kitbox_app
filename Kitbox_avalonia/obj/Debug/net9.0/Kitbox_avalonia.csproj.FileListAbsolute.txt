@@ -1,0 +1,8 @@
+/home/_42/Kitbox_app/Kitbox_avalonia/obj/Debug/net9.0/Kitbox_avalonia.csproj.AssemblyReference.cache
+/home/_42/Kitbox_app/Kitbox_avalonia/obj/Debug/net9.0/Avalonia/Resources.Inputs.cache
+/home/_42/Kitbox_app/Kitbox_avalonia/obj/Debug/net9.0/Avalonia/resources
+/home/_42/Kitbox_app/Kitbox_avalonia/obj/Debug/net9.0/Kitbox_avalonia.GeneratedMSBuildEditorConfig.editorconfig
+/home/_42/Kitbox_app/Kitbox_avalonia/obj/Debug/net9.0/Kitbox_avalonia.AssemblyInfoInputs.cache
+/home/_42/Kitbox_app/Kitbox_avalonia/obj/Debug/net9.0/Kitbox_avalonia.AssemblyInfo.cs
+/home/_42/Kitbox_app/Kitbox_avalonia/obj/Debug/net9.0/Kitbox_avalonia.csproj.CoreCompileInputs.cache
+/home/_42/Kitbox_app/Kitbox_avalonia/obj/Debug/net9.0/Kitbox_avalonia.sourcelink.json

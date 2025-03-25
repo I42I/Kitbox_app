@@ -1,47 +1,68 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core;
-using Avalonia.Data.Core.Plugins;
-using System.Linq;
 using Avalonia.Markup.Xaml;
+using Kitbox_avalonia.Services;
 using Kitbox_avalonia.ViewModels;
 using Kitbox_avalonia.Views;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 
-namespace Kitbox_avalonia;
-
-public partial class App : Application
+namespace Kitbox_avalonia
 {
-    public override void Initialize()
+    public partial class App : Application
     {
-        AvaloniaXamlLoader.Load(this);
-    }
+        public new static App Current => Application.Current as App;
+        public IServiceProvider Services { get; }
 
-    public override void OnFrameworkInitializationCompleted()
-    {
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        public App()
         {
-            // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
-            // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
-            DisableAvaloniaDataAnnotationValidation();
-            desktop.MainWindow = new MainWindow
-            {
-                DataContext = new MainWindowViewModel(),
-            };
+            Services = ConfigureServices();
         }
 
-        base.OnFrameworkInitializationCompleted();
-    }
-
-    private void DisableAvaloniaDataAnnotationValidation()
-    {
-        // Get an array of plugins to remove
-        var dataValidationPluginsToRemove =
-            BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToArray();
-
-        // remove each entry found
-        foreach (var plugin in dataValidationPluginsToRemove)
+        private static IServiceProvider ConfigureServices()
         {
-            BindingPlugins.DataValidators.Remove(plugin);
+            var services = new ServiceCollection();
+            
+            // Register services
+            services.AddSingleton<INavigationService>(provider => 
+            {
+                // We'll set this after window creation
+                return null!;
+            });
+            
+            return services.BuildServiceProvider();
+        }
+
+        public override void Initialize()
+        {
+            AvaloniaXamlLoader.Load(this);
+        }
+
+        public override void OnFrameworkInitializationCompleted()
+        {
+            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var mainWindow = new MainWindow();
+                desktop.MainWindow = mainWindow;
+                
+                // Now we can create the navigation service with the contentControl
+                var navigationService = new NavigationService(mainWindow.MainContent);
+                
+                // Replace the service registration
+                var serviceField = typeof(ServiceProvider).GetField("_defaultServiceProvider", 
+                    System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+                
+                var tempProvider = (ServiceProvider)Services;
+                serviceField?.SetValue(null, new ServiceCollection()
+                    .AddSingleton<INavigationService>(navigationService)
+                    .BuildServiceProvider());
+                
+                // Navigate to the home view
+                navigationService.Navigate<HomeViewModel>();
+            }
+
+            base.OnFrameworkInitializationCompleted();
         }
     }
 }

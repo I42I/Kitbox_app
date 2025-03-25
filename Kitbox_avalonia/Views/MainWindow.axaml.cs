@@ -1,11 +1,12 @@
 using Avalonia.Controls;
 
-namespace Kitbox_avalonia.Views;
-
-public partial class MainWindow : Window
+namespace Kitbox_avalonia.Views
 {
-    public MainWindow()
+    public partial class MainWindow : Window
     {
-        InitializeComponent();
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
     }
 }
