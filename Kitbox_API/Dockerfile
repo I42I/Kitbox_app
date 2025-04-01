@@ -10,7 +10,7 @@ COPY . .
 RUN dotnet publish -c Release -o /app/publish
 
 # Build de l'image finale
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 
