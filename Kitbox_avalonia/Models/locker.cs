@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+
+
 public class Locker
 {
     public int Id { get; set; }  // id_locker

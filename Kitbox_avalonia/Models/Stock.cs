@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+
+
 public class Stock
 {
     public int Id { get; set; }  // id_stock

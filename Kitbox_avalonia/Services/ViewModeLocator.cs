@@ -3,6 +3,8 @@ using Kitbox_avalonia.ViewModels;
 using Kitbox_avalonia.Views;
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
+
 
 namespace Kitbox_avalonia.Services
 {

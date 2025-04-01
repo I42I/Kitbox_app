@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+
+
 public class SupplierOrder
 {
     public int Id { get; set; }  // id_supplier_order

@@ -1,0 +1,7 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Kitbox_avalonia.Views.OrdersManagementView">
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock Text="OrdersManagementView" FontSize="24" />
+    </StackPanel>
+</UserControl>

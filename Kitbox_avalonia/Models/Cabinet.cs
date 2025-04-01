@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+
+
 public class Cabinet
 {
     public int Id { get; set; }  // id_cabinet
