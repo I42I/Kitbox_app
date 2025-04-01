@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Kitbox_avalonia.Views;
 
 namespace Kitbox_avalonia.Views
 {
@@ -7,6 +8,12 @@ namespace Kitbox_avalonia.Views
         public MainWindow()
         {
             InitializeComponent();
+            CurrentPage.Content = new HomeView(); // page par défaut au lancement
+        }
+
+        public void NavigateTo(UserControl page)
+        {
+            CurrentPage.Content = page;
         }
     }
 }

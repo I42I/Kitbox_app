@@ -1,7 +1,14 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Kitbox_avalonia.Views.OrdersManagementView">
-    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-        <TextBlock Text="OrdersManagementView" FontSize="24" />
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Kitbox_avalonia.Views.OrdersView">
+
+    <StackPanel Margin="20" Spacing="10">
+        <TextBlock Text="Gestion des Commandes Clients" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
+
+        <Button Content="Nouvelle commande" Width="220" Height="40" HorizontalAlignment="Center"/>
+        <Button Content="Afficher commandes" Width="220" Height="40" HorizontalAlignment="Center"/>
+        <Button Content="Modifier commande" Width="220" Height="40" HorizontalAlignment="Center"/>
+        <Button Content="Supprimer commande" Width="220" Height="40" HorizontalAlignment="Center"/>
     </StackPanel>
 </UserControl>

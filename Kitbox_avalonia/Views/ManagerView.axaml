@@ -1,7 +1,14 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Kitbox_avalonia.Views.ManagerView">
-    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-        <TextBlock Text="ManagerView" FontSize="24" />
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Kitbox_avalonia.Views.ManagerView">
+    
+    <StackPanel Margin="20" Spacing="10">
+        <TextBlock Text="Menu Manager" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
+
+        <Button Content="Gérer les commandes" Width="200" Height="40" HorizontalAlignment="Center"/>
+        <Button Content="Gérer les stocks" Width="200" Height="40" HorizontalAlignment="Center"/>
+        <Button Content="Gérer les fournisseurs" Width="200" Height="40" HorizontalAlignment="Center"/>
+        <Button Content="Déconnexion" Width="200" Height="40" HorizontalAlignment="Center"/>
     </StackPanel>
 </UserControl>
