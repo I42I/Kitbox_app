@@ -155,4 +155,9 @@ namespace Kitbox_API.DTOs
         public string? Token { get; set; }
         public DateTime Expiration { get; set; }
     }
+
+    public class TokenValidationDto
+    {
+        public string Token { get; set; }
+    }
 }

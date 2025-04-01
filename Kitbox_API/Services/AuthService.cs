@@ -1,106 +1,100 @@
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using Kitbox_API.Configuration;
-using Kitbox_API.Models;
-using Kitbox_API.Repositories;
-using Kitbox_API.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
+using Kitbox_API.DTOs;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Ajouter les services
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-// Configuration DbContext
-var connectionString = Environment.GetEnvironmentVariable("KITBOX_DB_CONNECTION") 
-    ?? builder.Configuration.GetConnectionString("KitboxDb");
-
-builder.Services.AddDbContext<KitboxContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
-
-// AutoMapper
-builder.Services.AddAutoMapper(typeof(Program));
-
-// Dépendances Repositories
-builder.Services.AddScoped<ICabinetRepository, CabinetRepository>();
-builder.Services.AddScoped<ICustomerOrderRepository, CustomerOrderRepository>();
-builder.Services.AddScoped<ILockerRepository, LockerRepository>();
-builder.Services.AddScoped<ILockerStockRepository, LockerStockRepository>();
-builder.Services.AddScoped<IStockRepository, StockRepository>();
-builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
-builder.Services.AddScoped<ISupplierOrderRepository, SupplierOrderRepository>();
-
-// Dépendances Services
-builder.Services.AddScoped<ICabinetService, CabinetService>();
-builder.Services.AddScoped<ICustomerOrderService, CustomerOrderService>();
-builder.Services.AddScoped<ILockerService, LockerService>();
-builder.Services.AddScoped<ILockerStockService, LockerStockService>();
-builder.Services.AddScoped<IStockService, StockService>();
-builder.Services.AddScoped<ISupplierService, SupplierService>();
-builder.Services.AddScoped<ISupplierOrderService, SupplierOrderService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-
-// Configuration JWT
-var jwtSection = builder.Configuration.GetSection("Jwt");
-builder.Services.Configure<JwtSettings>(jwtSection);
-
-var jwtSettings = jwtSection.Get<JwtSettings>();
-var key = Environment.GetEnvironmentVariable("JWT_KEY") ?? jwtSettings?.Key;
-
-if (string.IsNullOrEmpty(key))
+namespace Kitbox_API.Services
 {
-    throw new InvalidOperationException("La clé JWT n'est pas configurée");
-}
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+    public interface IAuthService
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings.Issuer,
-        ValidAudience = jwtSettings.Audience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
-    };
-});
+        Task<AuthResponseDto> AuthenticateAsync(AuthRequestDto request);
+        bool ValidateToken(string token);
+    }
 
-// Configuration des ports pour Docker
-builder.WebHost.UseUrls("http://*:50097");
-
-// CORS pour Avalonia
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAvalonia", policy =>
+    public class AuthService : IAuthService
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
+        private readonly IConfiguration _configuration;
+        private readonly JwtSettings _jwtSettings;
 
-var app = builder.Build();
+        public AuthService(IConfiguration configuration, IOptions<JwtSettings> jwtSettings)
+        {
+            _configuration = configuration;
+            _jwtSettings = jwtSettings.Value;
+        }
 
-// Configure le pipeline HTTP
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+        public async Task<AuthResponseDto> AuthenticateAsync(AuthRequestDto request)
+        {
+            // Exemple simple pour la démonstration
+            if (request.Username == "admin" && request.Password == "Password123!")
+            {
+                var token = GenerateJwtToken(request.Username);
+                return new AuthResponseDto
+                {
+                    Token = token,
+                    Expiration = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:DurationInMinutes"] ?? "60"))
+                };
+            }
+
+            return null;
+        }
+
+        public bool ValidateToken(string token)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Environment.GetEnvironmentVariable("JWT_KEY") ?? _configuration["Jwt:Key"];
+                
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+                    ValidateIssuer = true,
+                    ValidIssuer = _configuration["Jwt:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = _configuration["Jwt:Audience"],
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                }, out _);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private string GenerateJwtToken(string username)
+        {
+            var key = Environment.GetEnvironmentVariable("JWT_KEY") ?? _configuration["Jwt:Key"];
+            if (string.IsNullOrEmpty(key))
+                throw new InvalidOperationException("La clé JWT n'a pas été configurée");
+                
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, username),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Name, username)
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:DurationInMinutes"] ?? "60")),
+                signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+    }
 }
-
-app.UseHttpsRedirection();
-app.UseCors("AllowAvalonia");
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
-
-app.Run();
