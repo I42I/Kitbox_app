@@ -30,7 +30,7 @@ namespace Kitbox_API.Services
             return _mapper.Map<CabinetDto>(cabinet);
         }
 
-        public async Task<CabinetDto> CreateCabinetAsync(CabinetCreateDto cabinetDto)
+        public async Task<CabinetDto> CreateCabinetAsync(CreateCabinetDto cabinetDto)
         {
             var cabinet = _mapper.Map<Cabinet>(cabinetDto);
             var addedCabinet = await _cabinetRepository.AddAsync(cabinet);
@@ -38,7 +38,7 @@ namespace Kitbox_API.Services
             return _mapper.Map<CabinetDto>(addedCabinet);
         }
 
-        public async Task UpdateCabinetAsync(int id, CabinetUpdateDto cabinetDto)
+        public async Task UpdateCabinetAsync(int id, UpdateCabinetDto cabinetDto)
         {
             var cabinet = await _cabinetRepository.GetByIdAsync(id);
             if (cabinet == null)

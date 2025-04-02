@@ -24,6 +24,15 @@ namespace Kitbox_API.DTOs
         public string? Mail { get; set; }
     }
 
+    public class UpdateCustomerOrderDto
+    {
+        public DateTime? OrderDate { get; set; }
+        public string? Status { get; set; }
+        public decimal? DepositAmount { get; set; }
+        public int? Tel { get; set; }
+        public string? Mail { get; set; }
+    }
+
     // DTOs pour Cabinet
     public class CabinetDto
     {
@@ -36,6 +45,14 @@ namespace Kitbox_API.DTOs
     }
 
     public class CreateCabinetDto
+    {
+        public int? IdOrder { get; set; }
+        public decimal? Price { get; set; }
+        public string? Dimensions { get; set; }
+        public string? Reference { get; set; }
+    }
+
+    public class UpdateCabinetDto
     {
         public int? IdOrder { get; set; }
         public decimal? Price { get; set; }
@@ -62,6 +79,14 @@ namespace Kitbox_API.DTOs
         public string? Dimensions { get; set; }
     }
 
+    public class UpdateLockerDto
+    {
+        public int? IdCabinet { get; set; }
+        public string? Reference { get; set; }
+        public string? Code { get; set; }
+        public string? Dimensions { get; set; }
+    }
+
     // DTOs pour LockerStock
     public class LockerStockDto
     {
@@ -73,6 +98,13 @@ namespace Kitbox_API.DTOs
     }
 
     public class CreateLockerStockDto
+    {
+        public int? IdLocker { get; set; }
+        public int? IdStock { get; set; }
+        public int? QuantityNeeded { get; set; }
+    }
+
+    public class UpdateLockerStockDto
     {
         public int? IdLocker { get; set; }
         public int? IdStock { get; set; }
@@ -111,6 +143,21 @@ namespace Kitbox_API.DTOs
         public string? Location { get; set; }
     }
 
+    public class UpdateStockDto
+    {
+        public string? Reference { get; set; }
+        public string? Code { get; set; }
+        public string? Dimensions { get; set; }
+        public decimal? PriceSupplier1 { get; set; }
+        public string? DelaySupplier1 { get; set; }
+        public decimal? PriceSupplier2 { get; set; }
+        public string? DelaySupplier2 { get; set; }
+        public int? IdSupplierOrder { get; set; }
+        public int? Quantity { get; set; }
+        public string? Status { get; set; }
+        public string? Location { get; set; }
+    }
+
     // DTOs pour Supplier
     public class SupplierDto
     {
@@ -121,6 +168,13 @@ namespace Kitbox_API.DTOs
     }
 
     public class CreateSupplierDto
+    {
+        public string? Name { get; set; }
+        public string? Contact { get; set; }
+        public string? Address { get; set; }
+    }
+
+    public class UpdateSupplierDto
     {
         public string? Name { get; set; }
         public string? Contact { get; set; }
@@ -138,6 +192,12 @@ namespace Kitbox_API.DTOs
     }
 
     public class CreateSupplierOrderDto
+    {
+        public int? IdSupplier { get; set; }
+        public DateTime? OrderDate { get; set; }
+    }
+
+    public class UpdateSupplierOrderDto
     {
         public int? IdSupplier { get; set; }
         public DateTime? OrderDate { get; set; }
