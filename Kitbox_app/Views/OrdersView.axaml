@@ -1,0 +1,38 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Kitbox_app.Views.OrdersView">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="30">
+    
+    <!-- Titre -->
+    <TextBlock Text="📦 My Orders"
+               FontSize="24"
+               FontWeight="Bold"
+               HorizontalAlignment="Center"
+               Grid.Row="0" />
+
+    <!-- Liste des commandes -->
+    <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="1" Padding="10">
+      <ScrollViewer>
+        <ItemsControl ItemsSource="{Binding Orders}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding}" FontSize="16" Margin="5" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Border>
+
+    <!-- Bouton retour -->
+    <StackPanel Grid.Row="2"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Spacing="10">
+      <Button Content="🔙 Back"
+              Command="{Binding BackCommand}"
+              Width="100" />
+    </StackPanel>
+
+  </Grid>
+</UserControl>

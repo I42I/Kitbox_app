@@ -1,0 +1,52 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Kitbox_app.ViewModels"
+             x:Class="Kitbox_app.Views.HomeView">
+
+    <Grid>
+        <Grid VerticalAlignment="Center"
+              HorizontalAlignment="Center">
+            <StackPanel Spacing="20"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+
+                <TextBlock Text="Build your eco-friendly cabinet"
+                           FontSize="22"
+                           FontWeight="Bold"
+                           TextAlignment="Center"
+                           HorizontalAlignment="Center"/>
+
+                <TextBlock Text="Design sustainably. Assemble smartly."
+                           FontSize="14"
+                           FontStyle="Italic"
+                           Foreground="DarkGreen"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,10"/>
+
+                <Button Width="220" Height="45"
+                        Background="#4CAF50"
+                        Foreground="White"
+                        CornerRadius="10"
+                        HorizontalContentAlignment="Center"
+                        Content="Create a Cabinet"
+                        Command="{Binding GoToCreateCabinet}" />
+
+                <Button Width="220" Height="45"
+                        Background="#8BC34A"
+                        Foreground="White"
+                        CornerRadius="10"
+                        HorizontalContentAlignment="Center"
+                        Content="View My Orders"
+                        Command="{Binding GoToOrders}" />
+
+                <Button Width="220" Height="45"
+                        Background="#C8E6C9"
+                        Foreground="Black"
+                        CornerRadius="10"
+                        HorizontalContentAlignment="Center"
+                        Content="Log In"
+                        Command="{Binding GoToLogin}" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

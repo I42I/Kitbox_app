@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Kitbox_app.Views.LoginView">
+
+  <Grid Margin="30" RowDefinitions="Auto,Auto,Auto,*">
+
+    <TextBlock Text="Log In"
+               FontSize="24"
+               FontWeight="Bold"
+               HorizontalAlignment="Center"
+               Grid.Row="0" />
+
+    <StackPanel Grid.Row="1" Spacing="10" Margin="0,20" HorizontalAlignment="Center">
+      <TextBox Width="250" Watermark="Email" Text="{Binding Email}" />
+      <TextBox Width="250" Watermark="Password" PasswordChar="*" Text="{Binding Password}" />
+    </StackPanel>
+
+    <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+      <Button Content="🔙 Back" Command="{Binding BackCommand}" />
+      <Button Content="🔐 Log In" Command="{Binding LoginCommand}" />
+    </StackPanel>
+
+  </Grid>
+</UserControl>

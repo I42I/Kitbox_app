@@ -1,0 +1,69 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Kitbox_app.Views.CreateCabinetView">
+
+  <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="15" Margin="20">
+
+    <!-- Titre principal -->
+    <TextBlock Text="Create Cabinet Page"
+               FontSize="24"
+               FontWeight="Bold"
+               HorizontalAlignment="Center" />
+
+    <!-- Choix de Height -->
+    <TextBlock Text="Height:" FontWeight="Bold" />
+    <StackPanel Orientation="Horizontal" Spacing="10">
+      <Button Content="32" Command="{Binding SelectHeightCommand}" CommandParameter="32" />
+      <Button Content="40" Command="{Binding SelectHeightCommand}" CommandParameter="40" />
+      <Button Content="56" Command="{Binding SelectHeightCommand}" CommandParameter="56" />
+    </StackPanel>
+    <TextBlock Text="{Binding SelectedHeight}" FontStyle="Italic" HorizontalAlignment="Center" />
+
+    <!-- Choix de Width -->
+    <TextBlock Text="Width:" FontWeight="Bold" />
+    <StackPanel Orientation="Horizontal" Spacing="10">
+      <Button Content="62" Command="{Binding SelectWidthCommand}" CommandParameter="62" />
+      <Button Content="100" Command="{Binding SelectWidthCommand}" CommandParameter="100" />
+    </StackPanel>
+    <TextBlock Text="{Binding SelectedWidth}" FontStyle="Italic" HorizontalAlignment="Center" />
+
+    <!-- Choix de Depth -->
+    <TextBlock Text="Depth:" FontWeight="Bold" />
+    <StackPanel Orientation="Horizontal" Spacing="10">
+      <Button Content="50" Command="{Binding SelectDepthCommand}" CommandParameter="50" />
+      <Button Content="60" Command="{Binding SelectDepthCommand}" CommandParameter="60" />
+    </StackPanel>
+    <TextBlock Text="{Binding SelectedDepth}" FontStyle="Italic" HorizontalAlignment="Center" />
+
+    <!-- Liste des lockers -->
+    <TextBlock Text="Lockers added:" FontWeight="Bold" />
+    <ItemsControl ItemsSource="{Binding Lockers}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <TextBlock Text="{Binding Description}" />
+            <Button Content="❌"
+                    Command="{Binding DataContext.RemoveLockerCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                    CommandParameter="{Binding}" />
+          </StackPanel>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+
+    <!-- Bouton pour ajouter un locker -->
+    <Button Content="➕ Add Locker"
+            Background="Green"
+            Foreground="White"
+            Width="200"
+            IsEnabled="{Binding CanAddLocker}"
+            Command="{Binding AddLockerCommand}" />
+
+    <!-- Bouton pour retourner à l'accueil -->
+    <Button Content="⬅ Back"
+            Background="Gray"
+            Foreground="White"
+            Width="200"
+            Command="{Binding GoBackCommand}" />
+
+  </StackPanel>
+</UserControl>

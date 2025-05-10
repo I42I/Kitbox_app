@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:Kitbox_app.ViewModels"
+        xmlns:views="clr-namespace:Kitbox_app.Views"
+        x:Class="Kitbox_app.Views.MainWindow"
+        Width="600" Height="450"
+        Title="Kitbox">
+
+  <!-- DataContext en design time -->
+  <Design.DataContext>
+    <vm:MainWindowViewModel />
+  </Design.DataContext>
+
+  <!-- Lien avec le ViewLocator -->
+  <Window.DataTemplates>
+    <views:ViewLocator />
+  </Window.DataTemplates>
+
+  <!-- Zone centrale affichant dynamiquement la vue active -->
+  <Grid>
+    <ContentControl Content="{Binding CurrentViewModel}" />
+  </Grid>
+
+</Window>
