@@ -20,6 +20,21 @@ namespace KitboxAPI.Controllers
             _context = context;
         }
 
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CustomerOrder>>> GetAll()
+        {
+            try
+            {
+                var orders = await _context.CustomerOrders.ToListAsync();
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur dans GetAll CustomerOrders: {ex.Message}");
+                return StatusCode(500, "Une erreur interne est survenue.");
+            }
+        }
+
         // ✅ GET /api/customerorders/{id}/full
         [HttpGet("{id}/full")]
         public async Task<ActionResult<CustomerOrderFullDto>> GetFullOrder(int id)
