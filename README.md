@@ -1,91 +1,226 @@
-# Backend – KitboxAPI
+# Kitbox Application Suite
 
-## Explication du backend – Projet KitboxAPI
+## Complete Digital Solution for Modular Cabinet Design and Management
 
-Le backend du projet **KitboxAPI** a été développé en **ASP.NET Core Web API** (.NET 8) dans le cadre d’un projet académique en génie électrique (orientation informatique & électronique). Il constitue la partie serveur du système de configuration d’armoires modulaires, utilisée par une interface frontend en Avalonia.
-
----
-
-### Objectif principal
-
-L’API permet de :
-
-- Gérer l’**authentification des utilisateurs**
-- Créer des **armoires personnalisées** à partir de casiers
-- Suivre les **commandes clients**
-- Gérer le **stock des casiers**
-- Lancer des **commandes fournisseurs** en cas de rupture
+The **Kitbox Application Suite** is a comprehensive digital solution developed for modernizing cabinet ordering and inventory management processes. This project transforms a traditional paper-based system into an advanced digital workflow using cutting-edge .NET technologies.
 
 ---
 
-### Dossiers et structure du backend
+## 🏗️ Project Architecture
 
-- `Controllers/` : contient tous les **points d’entrée de l’API** REST (7 controllers)
-- `Models/` : contient les **entités de base de données** (7 modèles)
-- `Dtos/` : objets de transfert de données (partage frontend/backend)
-- `Data/` : contexte Entity Framework et gestion de la base MariaDB
+The solution consists of two main components:
 
----
+### 1. **KitBoxDesigner** - Advanced Desktop Application
+A sophisticated **Avalonia UI** desktop application providing:
+- **Interactive Cabinet Configuration**: Visual wizard for designing custom cabinets
+- **Real-time Stock Management**: Live inventory tracking with low-stock alerts
+- **Price Calculator**: Automatic pricing based on component requirements
+- **Order Validation**: Business rule enforcement (max 7 lockers, compatibility checks)
+- **Multi-platform Support**: Windows, macOS, and Linux compatibility
 
-### Fonctionnalités principales par controller
-
-| Contrôleur                  | Rôle de l’API                                      |
-|-----------------------------|---------------------------------------------------|
-| CabinetsController          | Gérer la composition des armoires                |
-| CustomerOrdersController    | Créer et consulter les commandes clients         |
-| LockersController           | Lister les dimensions de casiers disponibles     |
-| LockersStockController      | Gérer les quantités disponibles pour chaque casier |
-| StocksController            | Suivi global des mouvements de stock             |
-| SupplierOrderController     | Création des commandes vers les fournisseurs     |
-| SuppliersController         | Gestion des fournisseurs                         |
-
----
-
-### Entités de la base de données
-
-| Entité           | Description                                                        |
-|------------------|---------------------------------------------------------------------|
-| Cabinet          | Représente une armoire, composée de casiers                        |
-| CustumerOrder    | Commande passée par un client (avec une faute à corriger)          |
-| Locker           | Casiers disponibles (hauteur, largeur, profondeur)                 |
-| LockerStock      | Quantité de chaque type de casier en stock                         |
-| Stock            | Registre des entrées/sorties de stock                              |
-| Supplier         | Informations sur les fournisseurs                                  |
-| SupplierOrder    | Commandes vers les fournisseurs                                    |
+### 2. **KitboxAPI** - Production Backend
+A robust **ASP.NET Core 9.0** Web API featuring:
+- **RESTful Architecture**: Clean separation of concerns with DTOs
+- **MariaDB Integration**: Production database with Entity Framework Core
+- **Docker Deployment**: Containerized with Traefik reverse proxy
+- **HTTPS/SSL**: Let's Encrypt certificates for secure communication
+- **Comprehensive CRUD**: Full lifecycle management for all entities
 
 ---
 
-### Fonctionnement global
+## 🎯 Business Requirements Addressed
 
-1. Un utilisateur configure une armoire via le frontend.
-2. Les casiers choisis sont envoyés à l’API (`POST /api/cabinets`).
-3. L’armoire est liée à une commande client (`POST /api/customerorders`).
-4. L’API vérifie la disponibilité des casiers en stock.
-5. Si le stock est insuffisant, une commande fournisseur est automatiquement générée.
+The solution addresses **Kitbox Company's** specific needs:
 
----
+### Cabinet Composition Rules
+- **Maximum 7 lockers** per cabinet
+- **Height calculation**: Sum of locker heights + 4cm for angle irons
+- **Compatibility validation**: Ensuring proper locker combinations
 
-### Technologies utilisées
+### Stock Management
+- **Multi-supplier support** with automatic price comparison
+- **Minimum stock tracking** based on sales history
+- **Automatic reordering** when stock falls below thresholds
+- **Delivery time optimization** for supplier selection
 
-- **ASP.NET Core Web API (.NET 8)**
-- **Entity Framework Core**
-- **MariaDB** pour la base de données relationnelle
-- **JWT** pour l’authentification sécurisée
-- Architecture **MVC** + séparation des responsabilités
-
----
-
-### Améliorations identifiées
-
-- Correction du nom `CustumerOrder.cs` → `CustomerOrder.cs`
-- Ajout d’un système de rôles utilisateurs (admin, client)
-- Intégration d’un système de **validation métier** (stock, commandes invalides…)
-- Documentation via **Swagger**
-- Sécurité avancée (hash des mots de passe, middleware global d’erreur)
-- Nettoyage du code en déplaçant la logique métier dans des services
+### Order Processing
+- **Deposit management** for incomplete stock situations
+- **Order status tracking** (RESERVED, PURCHASED, PAID)
+- **Component availability checking** before order confirmation
 
 ---
 
-### Résultat
+## 🔧 Technical Stack
 
-Ce backend permet de gérer efficacement tout le processus de configuration, de commande, de gestion de stock et d’approvisionnement d’armoires personnalisées dans un contexte modulaire. Il constitue la couche serveur essentielle du projet Kitbox, avec une architecture claire, extensible, et connectée au frontend Avalonia via des appels REST.
+### Frontend (KitBoxDesigner)
+- **Framework**: Avalonia UI 11.2.7 with Fluent Design
+- **Architecture**: MVVM pattern with ReactiveUI
+- **Dependency Injection**: Microsoft.Extensions.DependencyInjection
+- **Data Binding**: CommunityToolkit.Mvvm for reactive ViewModels
+- **Graphics**: SkiaSharp for cross-platform rendering
+
+### Backend (KitboxAPI)
+- **Framework**: ASP.NET Core 9.0 Web API
+- **Database**: MariaDB 11.5 with MySql.EntityFrameworkCore provider
+- **Architecture**: Layered architecture with Repository pattern
+- **Documentation**: Swagger/OpenAPI for API exploration
+- **Serialization**: System.Text.Json with enum-to-string conversion
+
+### Infrastructure
+- **Containerization**: Docker with multi-stage builds
+- **Reverse Proxy**: Traefik with automatic SSL certificate management
+- **Database**: MariaDB with connection pooling and retry logic
+- **CORS**: Configured for cross-origin desktop application support
+
+---
+
+## 📊 Database Schema
+
+### Core Entities
+| Entity | Purpose | Key Relationships |
+|--------|---------|-------------------|
+| `CustomerOrder` | Client orders with status tracking | → `Cabinet` (1:N) |
+| `Cabinet` | Complete cabinet configurations | → `Locker` (1:N) |
+| `Locker` | Individual compartments with dimensions | → `LockerStock` (1:N) |
+| `Stock` | Inventory items with supplier pricing | → `SupplierOrder` (N:1) |
+| `Supplier` | Vendor information and contact details | → `SupplierOrder` (1:N) |
+
+### Business Logic Implementation
+- **Enum Status Management**: `OrderStatus` and `StockStatus` with string conversion
+- **Foreign Key Constraints**: Maintaining data integrity across relationships
+- **Automatic Calculations**: Price computation based on component requirements
+
+---
+
+## 🚀 Deployment Architecture
+
+### Production Environment
+```
+https://kitbox.msrl.be
+├── Traefik (Reverse Proxy + SSL)
+├── KitboxAPI (Docker Container)
+└── MariaDB (Docker Container)
+```
+
+### Development Workflow
+```
+KitBoxDesigner ←→ KitboxApiService ←→ REST API ←→ MariaDB
+    (Desktop)         (HTTP Client)      (Backend)     (Database)
+```
+
+---
+
+## 🔌 API Integration
+
+The **KitboxApiService** class provides seamless integration between the desktop application and the production API:
+
+### Service Implementation
+- **Dual Interface Support**: Implements both `IStockService` and `IPartService`
+- **Automatic Conversion**: Transforms API DTOs to application models
+- **Error Handling**: Robust exception management with retry logic
+- **Real-time Data**: Live stock levels and part availability
+
+### Key Features
+```csharp
+// Real-time stock checking
+var availability = await apiService.CheckStockAvailabilityAsync(requirements);
+
+// Automatic part categorization
+var parts = await apiService.GetPartsByCategoryAsync(PartCategory.Door);
+
+// Order validation with business rules
+var requiredParts = configuration.GetRequiredParts();
+```
+
+---
+
+## 📈 Key Improvements Over Legacy System
+
+### From Paper to Digital
+- **Manual Forms** → **Interactive Configuration Wizard**
+- **Error-prone Calculations** → **Automatic Validation & Pricing**
+- **Inventory Guesswork** → **Real-time Stock Tracking**
+- **Manual Supplier Management** → **Automated Price Comparison**
+
+### Performance Benefits
+- **Instant Availability Checking**: No more stockroom visits
+- **Automatic Reordering**: Prevents stockouts
+- **Error Reduction**: Business rule validation prevents invalid configurations
+- **Customer Experience**: Immediate order confirmation or deposit calculation
+
+---
+
+## 🎨 User Experience
+
+### Cabinet Configuration Wizard
+1. **Select Dimensions**: Choose cabinet width, depth, and maximum height
+2. **Add Lockers**: Configure individual compartments with doors/colors
+3. **Validate Design**: Automatic compatibility and dimension checking
+4. **Calculate Price**: Real-time pricing with component breakdown
+5. **Check Availability**: Stock verification with delivery estimates
+
+### Inventory Management
+- **Dashboard Overview**: Total parts, low stock alerts, reorder notifications
+- **Search & Filter**: Find parts by category, code, or availability status
+- **Stock Movements**: Track inventory changes with audit trail
+- **Supplier Integration**: Automatic ordering based on stock levels
+
+---
+
+## 🔄 Future Extensibility
+
+The architecture supports planned enhancements:
+- **Additional Elements**: Shelves and drawers (plugin-ready architecture)
+- **Advanced Analytics**: Sales reporting and stock optimization
+- **Mobile Support**: Avalonia's cross-platform capabilities
+- **API Expansion**: Additional endpoints for enhanced functionality
+
+---
+
+## 📋 Development Setup
+
+### Prerequisites
+- **.NET 9.0 SDK**
+- **Docker & Docker Compose**
+
+### Quick Start
+```bash
+# Clone the repository
+git clone [repository-url]
+
+# Start the backend (Docker)
+cd kitboxAPI
+docker-compose up -d
+
+# Run the desktop application
+cd ../KitBoxDesigner
+dotnet run
+
+# Access API documentation
+# https://kitbox.msrl.be/swagger
+```
+
+---
+
+## 🎓 Academic Context
+
+This project was developed as part of an **Electrical Engineering** program with a focus on **Computer Science & Electronics**. It demonstrates:
+
+- **Software Architecture**: Clean separation of concerns and scalable design
+- **Database Design**: Normalized schema with proper relationships
+- **API Development**: RESTful services with comprehensive documentation
+- **UI/UX Design**: Modern desktop application with intuitive workflows
+- **DevOps Practices**: Containerization and production deployment
+
+---
+
+## ✨ Result
+
+The **Kitbox Application Suite** successfully modernizes the cabinet ordering process, providing:
+- **Seamless Integration** between desktop and cloud infrastructure
+- **Business Rule Enforcement** preventing configuration errors
+- **Real-time Inventory Management** with automatic supplier integration
+- **Professional User Experience** replacing paper-based workflows
+- **Scalable Architecture** ready for future business expansion
+
+This solution represents a complete digital transformation, bridging traditional manufacturing processes with modern software development practices.
