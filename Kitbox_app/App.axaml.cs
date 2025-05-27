@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Kitbox_app.ViewModels;
 using Kitbox_app.Views;
+using Kitbox_app.Services;
 
 namespace Kitbox_app;
 
