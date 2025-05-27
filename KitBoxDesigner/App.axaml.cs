@@ -20,7 +20,9 @@ public partial class App : Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
-    }    public override void OnFrameworkInitializationCompleted()
+    }
+
+    public override void OnFrameworkInitializationCompleted()
     {
         // Register global exception handler
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
@@ -35,7 +37,6 @@ public partial class App : Application
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
-                // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
                 DisableAvaloniaDataAnnotationValidation();
                 
                 var mainWindowViewModel = _serviceProvider.GetRequiredService<MainWindowViewModel>();
@@ -55,7 +56,26 @@ public partial class App : Application
             LogException(ex, "Error during application initialization");
         }
     }
-    
+
+    private void ConfigureServices(IServiceCollection services)
+    {
+        // 🔄 Utiliser KitboxApiService pour les deux interfaces
+        services.AddSingleton<KitboxApiService>();
+        services.AddSingleton<IPartService>(provider => provider.GetRequiredService<KitboxApiService>());
+        services.AddSingleton<IStockService>(provider => provider.GetRequiredService<KitboxApiService>());
+        
+        // Autres services
+        services.AddSingleton<IPriceCalculatorService, PriceCalculatorService>();
+        services.AddSingleton<ConfigurationStorageService>();
+        
+        // Register ViewModels
+        services.AddTransient<MainWindowViewModel>();
+        services.AddTransient<ConfiguratorViewModel>();
+        services.AddTransient<InventoryViewModel>();
+        services.AddTransient<StockCheckerViewModel>();
+        services.AddTransient<PriceCalculatorViewModel>();
+    }
+
     private void Desktop_ShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
     {
         // Uncomment to prevent immediate closing and show dialog
@@ -79,20 +99,6 @@ public partial class App : Application
         {
             // If logging fails, we can't do much about it
         }
-    }private void ConfigureServices(IServiceCollection services)
-    {
-        // Register services
-        services.AddSingleton<IPartService, PartService>();
-        services.AddSingleton<IStockService, StockService>();
-        services.AddSingleton<IPriceCalculatorService, PriceCalculatorService>();
-        services.AddSingleton<ConfigurationStorageService>();
-        
-        // Register ViewModels
-        services.AddTransient<MainWindowViewModel>();
-        services.AddTransient<ConfiguratorViewModel>();
-        services.AddTransient<InventoryViewModel>();
-        services.AddTransient<StockCheckerViewModel>();
-        services.AddTransient<PriceCalculatorViewModel>();
     }
 
     private void DisableAvaloniaDataAnnotationValidation()

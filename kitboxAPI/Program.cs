@@ -75,15 +75,11 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// 🔹 Configuration middleware
-// if (app.Environment.IsDevelopment())
-// {
-//     app.UseSwagger();
-//     app.UseSwaggerUI();
-// }
-
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseCors("AllowAvalon");
 app.UseHttpsRedirection();
