@@ -1,0 +1,562 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:KitBoxDesigner.ViewModels"
+             xmlns:services="using:KitBoxDesigner.Services"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
+             x:Class="KitBoxDesigner.Views.ConfiguratorView"
+             x:DataType="vm:ConfiguratorViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Border.step-container">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,10"/>
+        </Style>
+        
+        <Style Selector="TextBlock.step-title">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#1976D2"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+        
+        <Style Selector="TextBlock.step-description">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#666"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+        </Style>
+        
+        <Style Selector="Button.step-nav">
+            <Setter Property="Background" Value="#2196F3"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        
+        <Style Selector="Button.step-nav:disabled">
+            <Setter Property="Background" Value="#CCCCCC"/>
+            <Setter Property="Foreground" Value="#999"/>
+        </Style>
+        
+        <Style Selector="RadioButton.option-radio">
+            <Setter Property="Margin" Value="0,8"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        
+        <Style Selector="TextBox.dimension-input">
+            <Setter Property="Width" Value="100"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Margin" Value="10,5"/>
+        </Style>
+        
+        <Style Selector="Border.visualization-area">
+            <Setter Property="Background" Value="#F8F9FA"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="MinHeight" Value="300"/>
+        </Style>
+        
+        <Style Selector="Border.progress-step">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="CornerRadius" Value="15"/>
+            <Setter Property="Background" Value="#E0E0E0"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+        
+        <Style Selector="Border.progress-step.active">
+            <Setter Property="Background" Value="#2196F3"/>
+        </Style>
+        
+        <Style Selector="Border.progress-step.completed">
+            <Setter Property="Background" Value="#4CAF50"/>
+        </Style>
+        
+        <Style Selector="TextBlock.progress-number">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+    </UserControl.Styles>    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <!-- Configuration Management -->
+        <Border Grid.Row="0"
+                Background="#F8F9FA"
+                BorderBrush="#E0E0E0"
+                BorderThickness="0,0,0,1"
+                Padding="20,10">
+            <Grid ColumnDefinitions="*,Auto">
+                <!-- Configuration Name and Actions -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Configuration:" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="SemiBold"/>
+                    <TextBox Text="{Binding ConfigurationName}" 
+                            Watermark="Enter configuration name..." 
+                            Width="200" 
+                            Margin="0,0,10,0"/>
+                    <Button Content="Save" 
+                           Command="{Binding SaveConfigurationCommand}"
+                           Margin="0,0,5,0"
+                           Padding="15,5"/>
+                    <Button Content="Save As..." 
+                           Command="{Binding SaveAsConfigurationCommand}"
+                           Margin="0,0,10,0"
+                           Padding="15,5"/>
+                </StackPanel>
+                
+                <!-- Saved Configurations -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Load:" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="SemiBold"/>                    <ComboBox ItemsSource="{Binding SavedConfigurations}"
+                             SelectedItem="{Binding SelectedSavedConfiguration}"
+                             Width="250"
+                             Margin="0,0,5,0">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate DataType="services:SavedConfiguration">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding Summary}" FontSize="11" Foreground="#666"/>
+                                    <TextBlock Text="{Binding FormattedSaveDate}" FontSize="10" Foreground="#999"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Button Content="Load" 
+                           Command="{Binding LoadConfigurationCommand}"
+                           CommandParameter="{Binding SelectedSavedConfiguration}"
+                           Margin="0,0,5,0"
+                           Padding="15,5"/>
+                    <Button Content="Delete" 
+                           Command="{Binding DeleteConfigurationCommand}"
+                           CommandParameter="{Binding SelectedSavedConfiguration}"
+                           Margin="0,0,5,0"
+                           Padding="15,5"/>
+                    <Button Content="Refresh" 
+                           Command="{Binding RefreshSavedConfigurationsCommand}"
+                           Padding="15,5"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+          <!-- Progress Indicator -->
+        <Border Grid.Row="1"
+                Background="White" 
+                BorderBrush="#E0E0E0" 
+                BorderThickness="0,0,0,1" 
+                Padding="20,15">
+            <StackPanel>
+                <TextBlock Text="Cabinet Configuration Wizard" 
+                          FontSize="18" 
+                          FontWeight="Bold" 
+                          Margin="0,0,0,15"/>
+                
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <!-- Step 1 -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Classes="progress-step"
+                                Classes.active="{Binding IsStep1Active}"
+                                Classes.completed="{Binding IsStep1Completed}">
+                            <TextBlock Classes="progress-number" Text="1"/>
+                        </Border>
+                        <TextBlock Text="Basic Options" 
+                                  VerticalAlignment="Center" 
+                                  Margin="10,0,20,0"/>
+                    </StackPanel>
+                    
+                    <!-- Connector -->
+                    <Rectangle Width="40" Height="2" Fill="#E0E0E0" VerticalAlignment="Center"/>
+                    
+                    <!-- Step 2 -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Classes="progress-step"
+                                Classes.active="{Binding IsStep2Active}"
+                                Classes.completed="{Binding IsStep2Completed}">
+                            <TextBlock Classes="progress-number" Text="2"/>
+                        </Border>
+                        <TextBlock Text="Dimensions" 
+                                  VerticalAlignment="Center" 
+                                  Margin="10,0,20,0"/>
+                    </StackPanel>
+                    
+                    <!-- Connector -->
+                    <Rectangle Width="40" Height="2" Fill="#E0E0E0" VerticalAlignment="Center"/>
+                    
+                    <!-- Step 3 -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Classes="progress-step"
+                                Classes.active="{Binding IsStep3Active}"
+                                Classes.completed="{Binding IsStep3Completed}">
+                            <TextBlock Classes="progress-number" Text="3"/>
+                        </Border>
+                        <TextBlock Text="Accessories" 
+                                  VerticalAlignment="Center" 
+                                  Margin="10,0,20,0"/>
+                    </StackPanel>
+                    
+                    <!-- Connector -->
+                    <Rectangle Width="40" Height="2" Fill="#E0E0E0" VerticalAlignment="Center"/>
+                    
+                    <!-- Step 4 -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Classes="progress-step"
+                                Classes.active="{Binding IsStep4Active}"
+                                Classes.completed="{Binding IsStep4Completed}">
+                            <TextBlock Classes="progress-number" Text="4"/>
+                        </Border>
+                        <TextBlock Text="Review" 
+                                  VerticalAlignment="Center" 
+                                  Margin="10,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Main Content -->
+        <ScrollViewer Grid.Row="2" Padding="20">
+            <Grid ColumnDefinitions="2*,3*" Margin="0,0,20,0">
+                <!-- Configuration Panel -->
+                <StackPanel Grid.Column="0">
+                    
+                    <!-- Step 1: Basic Options -->
+                    <Border Classes="step-container" IsVisible="{Binding IsStep1Active}">
+                        <StackPanel>
+                            <TextBlock Classes="step-title" Text="Basic Cabinet Options"/>
+                            <TextBlock Classes="step-description" 
+                                      Text="Choose the fundamental options for your cabinet"/>
+                            
+                            <!-- Color Selection -->
+                            <TextBlock Text="Color:" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                            <StackPanel>
+                                <RadioButton Classes="option-radio" 
+                                            Content="Brown" 
+                                            IsChecked="{Binding IsBrownSelected}"/>
+                                <RadioButton Classes="option-radio" 
+                                            Content="White" 
+                                            IsChecked="{Binding IsWhiteSelected}"/>
+                            </StackPanel>
+                            
+                            <!-- Cabinet Type -->
+                            <TextBlock Text="Cabinet Type:" FontWeight="SemiBold" Margin="0,20,0,10"/>
+                            <ComboBox ItemsSource="{Binding AvailableCabinetTypes}"
+                                     SelectedItem="{Binding SelectedCabinetType}"
+                                     Width="200"
+                                     HorizontalAlignment="Left"/>
+                            
+                            <!-- Number of Compartments -->
+                            <TextBlock Text="Number of Compartments:" FontWeight="SemiBold" Margin="0,20,0,10"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Slider Minimum="1" Maximum="7" 
+                                       Value="{Binding NumberOfCompartments}"
+                                       Width="150"
+                                       TickFrequency="1"
+                                       IsSnapToTickEnabled="True"/>
+                                <TextBlock Text="{Binding NumberOfCompartments}" 
+                                          VerticalAlignment="Center" 
+                                          Margin="15,0"
+                                          FontWeight="SemiBold"/>
+                            </StackPanel>
+                            
+                            <TextBlock Text="Maximum 7 compartments allowed" 
+                                      FontSize="12" 
+                                      Foreground="#999" 
+                                      Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Step 2: Dimensions -->
+                    <Border Classes="step-container" IsVisible="{Binding IsStep2Active}">
+                        <StackPanel>
+                            <TextBlock Classes="step-title" Text="Cabinet Dimensions"/>
+                            <TextBlock Classes="step-description" 
+                                      Text="Set the size of your cabinet in centimeters"/>
+                            
+                            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" Margin="0,0,0,15">
+                                <!-- Width -->
+                                <TextBlock Grid.Row="0" Grid.Column="0" 
+                                          Text="Width (cm):" 
+                                          VerticalAlignment="Center"
+                                          Margin="0,0,15,0"/>
+                                <TextBox Grid.Row="0" Grid.Column="1" 
+                                        Classes="dimension-input"
+                                        Text="{Binding WidthText}"
+                                        Watermark="Enter width"/>
+                                
+                                <!-- Depth -->
+                                <TextBlock Grid.Row="1" Grid.Column="0" 
+                                          Text="Depth (cm):" 
+                                          VerticalAlignment="Center"
+                                          Margin="0,0,15,0"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" 
+                                        Classes="dimension-input"
+                                        Text="{Binding DepthText}"
+                                        Watermark="Enter depth"/>
+                                  <!-- Height -->
+                                <TextBlock Grid.Row="2" Grid.Column="0" 
+                                          Text="Total Height:" 
+                                          VerticalAlignment="Top"
+                                          Margin="0,5,15,0"
+                                          FontWeight="SemiBold"/>
+                                <StackPanel Grid.Row="2" Grid.Column="1">
+                                    <TextBlock Text="Individual Compartment Heights (cm):" 
+                                              FontWeight="SemiBold" 
+                                              Margin="0,0,0,10"/>
+                                    
+                                    <!-- Individual Compartment Height Controls -->
+                                    <ItemsControl ItemsSource="{Binding CompartmentHeights}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid ColumnDefinitions="Auto,*,Auto" 
+                                                      Margin="0,0,0,8"
+                                                      VerticalAlignment="Center">
+                                                    <TextBlock Grid.Column="0" 
+                                                              Text="{Binding DisplayName}" 
+                                                              VerticalAlignment="Center"
+                                                              Width="100"
+                                                              Margin="0,0,10,0"/>
+                                                    <TextBox Grid.Column="1" 
+                                                            Classes="dimension-input"
+                                                            Text="{Binding HeightText}"
+                                                            Width="80"
+                                                            Watermark="Height"/>
+                                                    <TextBlock Grid.Column="2" 
+                                                              Text="cm" 
+                                                              VerticalAlignment="Center"
+                                                              Margin="5,0,0,0"
+                                                              Foreground="#666"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    
+                                    <!-- Global Width and Depth Info -->
+                                    <Border Background="#F8F9FA" 
+                                           BorderBrush="#E0E0E0" 
+                                           BorderThickness="1" 
+                                           CornerRadius="4" 
+                                           Padding="10" 
+                                           Margin="0,15,0,0">
+                                        <StackPanel>
+                                            <TextBlock Text="Global Dimensions (applied to all compartments):" 
+                                                      FontWeight="SemiBold" 
+                                                      FontSize="12"
+                                                      Margin="0,0,0,5"/>
+                                            <TextBlock Text="{Binding FormattedGlobalDimensions}" 
+                                                      FontSize="12"
+                                                      Foreground="#666"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                            
+                            <!-- Validation Messages -->
+                            <StackPanel Margin="0,20,0,0">
+                                <TextBlock Text="• Minimum dimensions: 30cm width, 20cm depth, 40cm height" 
+                                          FontSize="12" 
+                                          Foreground="#666"/>
+                                <TextBlock Text="• Maximum dimensions: 200cm width, 60cm depth, 250cm height" 
+                                          FontSize="12" 
+                                          Foreground="#666"/>
+                                <TextBlock Text="{Binding DimensionValidationMessage}" 
+                                          FontSize="12" 
+                                          Foreground="Red" 
+                                          IsVisible="{Binding HasDimensionValidationError}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Step 3: Accessories -->
+                    <Border Classes="step-container" IsVisible="{Binding IsStep3Active}">
+                        <StackPanel>
+                            <TextBlock Classes="step-title" Text="Accessories &amp; Options"/>
+                            <TextBlock Classes="step-description" 
+                                      Text="Add doors, drawers, and other accessories"/>
+                            
+                            <CheckBox Content="Include Doors" 
+                                     IsChecked="{Binding IncludeDoors}"
+                                     Margin="0,10"/>
+                            
+                            <CheckBox Content="Include Drawers" 
+                                     IsChecked="{Binding IncludeDrawers}"
+                                     Margin="0,10"/>
+                            
+                            <CheckBox Content="Include Shelves" 
+                                     IsChecked="{Binding IncludeShelves}"
+                                     Margin="0,10"/>
+                            
+                            <CheckBox Content="Include LED Lighting" 
+                                     IsChecked="{Binding IncludeLighting}"
+                                     Margin="0,10"/>
+                            
+                            <!-- Corner Iron Information -->
+                            <Border Background="#F0F8FF" 
+                                   BorderBrush="#B3D9FF" 
+                                   BorderThickness="1" 
+                                   CornerRadius="4" 
+                                   Padding="15" 
+                                   Margin="0,20,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="Corner Iron Calculation" 
+                                              FontWeight="SemiBold" 
+                                              Margin="0,0,0,10"/>
+                                    <TextBlock Text="{Binding CornerIronInfo}" 
+                                              TextWrapping="Wrap"
+                                              FontSize="12"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Step 4: Review -->
+                    <Border Classes="step-container" IsVisible="{Binding IsStep4Active}">
+                        <StackPanel>
+                            <TextBlock Classes="step-title" Text="Configuration Review"/>
+                            <TextBlock Classes="step-description" 
+                                      Text="Review your cabinet configuration before finalizing"/>
+                              <!-- Configuration Summary -->
+                            <Border Background="#F8F9FA" 
+                                   BorderBrush="#E0E0E0" 
+                                   BorderThickness="1" 
+                                   CornerRadius="4" 
+                                   Padding="15">
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,0,0,8">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Color:" FontWeight="SemiBold" Margin="0,0,15,0"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedColor}"/>
+                                    
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Dimensions:" FontWeight="SemiBold" Margin="0,0,15,0"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding FormattedDimensions}"/>
+                                    
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Compartments:" FontWeight="SemiBold" Margin="0,0,15,0"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding NumberOfCompartments}"/>
+                                    
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Accessories:" FontWeight="SemiBold" Margin="0,0,15,0"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedAccessories}"/>
+                                </Grid>
+                            </Border>
+                            
+                            <!-- Price Preview -->
+                            <Border Background="#FFF8F0" 
+                                   BorderBrush="#FFE0B3" 
+                                   BorderThickness="1" 
+                                   CornerRadius="4" 
+                                   Padding="15" 
+                                   Margin="0,15,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="Estimated Price" 
+                                              FontWeight="SemiBold" 
+                                              FontSize="16"
+                                              Margin="0,0,0,10"/>
+                                    <TextBlock Text="{Binding EstimatedPrice}" 
+                                              FontSize="20" 
+                                              FontWeight="Bold" 
+                                              Foreground="#F57C00"/>
+                                    <TextBlock Text="Final price will be calculated after stock verification" 
+                                              FontSize="12" 
+                                              Foreground="#999" 
+                                              Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Visualization Panel -->
+                <Border Grid.Column="1" Classes="visualization-area">
+                    <StackPanel>
+                        <TextBlock Text="Cabinet Preview" 
+                                  FontWeight="SemiBold" 
+                                  HorizontalAlignment="Center" 
+                                  Margin="0,20,0,15"/>
+                        
+                        <!-- 3D/Isometric View Placeholder -->
+                        <Canvas Background="White" 
+                               Width="400" 
+                               Height="300" 
+                               HorizontalAlignment="Center">
+                            <!-- This would be replaced with actual 3D rendering -->
+                            <Rectangle Canvas.Left="50" Canvas.Top="50" 
+                                      Width="300" Height="200" 
+                                      Fill="{Binding CabinetColor}" 
+                                      Stroke="#666" 
+                                      StrokeThickness="2"/>
+                            
+                            <!-- Compartment indicators -->
+                            <ItemsControl ItemsSource="{Binding VisualizationCompartments}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <Canvas/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Rectangle Width="{Binding Width}" 
+                                                  Height="{Binding Height}"
+                                                  Fill="Transparent" 
+                                                  Stroke="#999" 
+                                                  StrokeThickness="1" 
+                                                  StrokeDashArray="3,3"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            
+                            <TextBlock Canvas.Left="200" Canvas.Top="160" 
+                                      Text="3D Visualization" 
+                                      HorizontalAlignment="Center" 
+                                      Foreground="#999" 
+                                      FontStyle="Italic"/>
+                        </Canvas>
+                        
+                        <!-- Dimensions Display -->
+                        <StackPanel HorizontalAlignment="Center" Margin="0,20">
+                            <TextBlock Text="{Binding FormattedDimensions}" 
+                                      HorizontalAlignment="Center" 
+                                      FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding NumberOfCompartments} compartments" 
+                                      HorizontalAlignment="Center" 
+                                      FontSize="12" 
+                                      Foreground="#666"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </ScrollViewer>        <!-- Navigation Buttons -->
+        <Border Grid.Row="3"
+                Background="White" 
+                BorderBrush="#E0E0E0" 
+                BorderThickness="0,1,0,0" 
+                Padding="20,15">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <!-- Status Message -->
+                <TextBlock Grid.Column="0" 
+                          Text="{Binding StatusMessage}" 
+                          VerticalAlignment="Center" 
+                          Foreground="#666"/>
+                
+                <!-- Navigation Buttons -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Classes="step-nav" 
+                           Content="← Previous" 
+                           Command="{Binding PreviousStepCommand}"
+                           IsEnabled="{Binding CanGoPrevious}"/>
+                    
+                    <Button Classes="step-nav" 
+                           Content="Next →" 
+                           Command="{Binding NextStepCommand}"
+                           IsEnabled="{Binding CanGoNext}"
+                           IsVisible="{Binding !IsLastStep}"/>
+                    
+                    <Button Classes="step-nav" 
+                           Content="Complete Configuration" 
+                           Command="{Binding CompleteConfigurationCommand}"
+                           IsVisible="{Binding IsLastStep}"
+                           IsEnabled="{Binding IsConfigurationValid}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+
+</UserControl>

@@ -1,0 +1,6 @@
+@kitboxAPI_HostAddress = http://localhost:5286
+
+GET {{kitboxAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
