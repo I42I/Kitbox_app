@@ -1,0 +1,290 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:KitBoxDesigner.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
+             x:Class="KitBoxDesigner.Views.InventoryView"
+             x:DataType="vm:InventoryViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Border.inventory-card">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,10"/>
+        </Style>
+        
+        <Style Selector="TextBlock.page-title">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#1976D2"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+        </Style>
+        
+        <Style Selector="Button.action-button">
+            <Setter Property="Background" Value="#2196F3"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+        
+        <Style Selector="Button.action-button.secondary">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#2196F3"/>
+            <Setter Property="BorderBrush" Value="#2196F3"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        
+        <Style Selector="TextBox.search-box">
+            <Setter Property="MinWidth" Value="250"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+          <Style Selector="DataGrid">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="RowBackground" Value="White"/>
+        </Style>
+        
+        <Style Selector="DataGridRow:selected">
+            <Setter Property="Background" Value="#E3F2FD"/>
+        </Style>        <Style Selector="TextBlock.status-indicator">
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+        
+        <Style Selector="TextBlock.status-indicator.in-stock">
+            <Setter Property="Background" Value="#E8F5E8"/>
+            <Setter Property="Foreground" Value="#2E7D32"/>
+        </Style>
+        
+        <Style Selector="TextBlock.status-indicator.low-stock">
+            <Setter Property="Background" Value="#FFF8E1"/>
+            <Setter Property="Foreground" Value="#F57C00"/>
+        </Style>
+        
+        <Style Selector="TextBlock.status-indicator.out-of-stock">
+            <Setter Property="Background" Value="#FFEBEE"/>
+            <Setter Property="Foreground" Value="#D32F2F"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        <!-- Header -->
+        <StackPanel Grid.Row="0">
+            <TextBlock Classes="page-title" Text="Inventory Management"/>
+            
+            <!-- Summary Cards -->
+            <Grid ColumnDefinitions="*,*,*,*" Margin="0,0,15,20">
+                <Border Grid.Column="0" Classes="inventory-card">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding TotalParts}" 
+                                  FontSize="28" 
+                                  FontWeight="Bold" 
+                                  HorizontalAlignment="Center"
+                                  Foreground="#2196F3"/>
+                        <TextBlock Text="Total Parts" 
+                                  FontSize="12" 
+                                  HorizontalAlignment="Center"
+                                  Foreground="#666"/>
+                    </StackPanel>
+                </Border>
+                
+                <Border Grid.Column="1" Classes="inventory-card">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding InStockCount}" 
+                                  FontSize="28" 
+                                  FontWeight="Bold" 
+                                  HorizontalAlignment="Center"
+                                  Foreground="#4CAF50"/>
+                        <TextBlock Text="In Stock" 
+                                  FontSize="12" 
+                                  HorizontalAlignment="Center"
+                                  Foreground="#666"/>
+                    </StackPanel>
+                </Border>
+                
+                <Border Grid.Column="2" Classes="inventory-card">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding LowStockCount}" 
+                                  FontSize="28" 
+                                  FontWeight="Bold" 
+                                  HorizontalAlignment="Center"
+                                  Foreground="#FF9800"/>
+                        <TextBlock Text="Low Stock" 
+                                  FontSize="12" 
+                                  HorizontalAlignment="Center"
+                                  Foreground="#666"/>
+                    </StackPanel>
+                </Border>
+                
+                <Border Grid.Column="3" Classes="inventory-card">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding OutOfStockCount}" 
+                                  FontSize="28" 
+                                  FontWeight="Bold" 
+                                  HorizontalAlignment="Center"
+                                  Foreground="#F44336"/>
+                        <TextBlock Text="Out of Stock" 
+                                  FontSize="12" 
+                                  HorizontalAlignment="Center"
+                                  Foreground="#666"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </StackPanel>
+
+        <!-- Filters and Actions -->
+        <Border Grid.Row="1" Classes="inventory-card">
+            <Grid ColumnDefinitions="*,Auto">
+                <!-- Search and Filters -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBox Classes="search-box"
+                            Text="{Binding SearchText}"
+                            Watermark="Search parts by name or code..."/>
+                    
+                    <ComboBox ItemsSource="{Binding Categories}"
+                             SelectedItem="{Binding SelectedCategory}"
+                             PlaceholderText="All Categories"
+                             MinWidth="150"
+                             Margin="5"/>
+                    
+                    <CheckBox Content="Low Stock Only" 
+                             IsChecked="{Binding ShowLowStockOnly}"
+                             VerticalAlignment="Center"
+                             Margin="15,0,0,0"/>
+                    
+                    <CheckBox Content="Out of Stock Only" 
+                             IsChecked="{Binding ShowOutOfStockOnly}"
+                             VerticalAlignment="Center"
+                             Margin="15,0,0,0"/>
+                </StackPanel>
+                
+                <!-- Action Buttons -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Classes="action-button secondary"
+                           Content="📊 Export Report"
+                           Command="{Binding ExportReportCommand}"/>
+                    
+                    <Button Classes="action-button"
+                           Content="🔄 Refresh"
+                           Command="{Binding RefreshCommand}"/>
+                    
+                    <Button Classes="action-button"
+                           Content="➕ Add Stock"
+                           Command="{Binding AddStockCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Inventory Table -->
+        <Border Grid.Row="2" Classes="inventory-card" Margin="0,0,0,0">
+            <Grid RowDefinitions="Auto,*">
+                <!-- Loading/Status -->
+                <StackPanel Grid.Row="0" 
+                           IsVisible="{Binding IsLoading}"
+                           HorizontalAlignment="Center"
+                           Margin="0,20">
+                    <TextBlock Text="⏳ Loading inventory..." 
+                              HorizontalAlignment="Center"
+                              FontSize="14"
+                              Foreground="#666"/>
+                </StackPanel>
+                
+                <!-- Data Grid -->
+                <DataGrid Grid.Row="1"
+                         ItemsSource="{Binding FilteredParts}"
+                         SelectedItem="{Binding SelectedPart}"
+                         AutoGenerateColumns="False"
+                         CanUserReorderColumns="True"
+                         CanUserResizeColumns="True"
+                         IsVisible="{Binding !IsLoading}">
+                    
+                    <DataGrid.Columns>
+                        <!-- Part Code -->
+                        <DataGridTextColumn Header="Code" 
+                                           Binding="{Binding Code}" 
+                                           Width="80"/>
+                        
+                        <!-- Part Name -->
+                        <DataGridTextColumn Header="Name" 
+                                           Binding="{Binding Name}" 
+                                           Width="200"/>
+                        
+                        <!-- Category -->
+                        <DataGridTextColumn Header="Category" 
+                                           Binding="{Binding Category}" 
+                                           Width="120"/>
+                        
+                        <!-- Current Stock -->
+                        <DataGridTextColumn Header="Stock" 
+                                           Binding="{Binding CurrentStock}" 
+                                           Width="80"/>
+                        
+                        <!-- Minimum Stock -->
+                        <DataGridTextColumn Header="Min Stock" 
+                                           Binding="{Binding MinimumStock}" 
+                                           Width="80"/>
+                        
+                        <!-- Status -->
+                        <DataGridTemplateColumn Header="Status" Width="100">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Classes="status-indicator"
+                                              Classes.in-stock="{Binding IsInStock}"
+                                              Classes.low-stock="{Binding IsLowStock}"
+                                              Classes.out-of-stock="{Binding IsOutOfStock}"
+                                              Text="{Binding StockStatus}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        
+                        <!-- Price -->
+                        <DataGridTextColumn Header="Price" 
+                                           Binding="{Binding FormattedPrice}" 
+                                           Width="80"/>
+                        
+                        <!-- Delivery Delay -->
+                        <DataGridTextColumn Header="Delivery" 
+                                           Binding="{Binding DeliveryDelayText}" 
+                                           Width="80"/>
+                        
+                        <!-- Last Updated -->
+                        <DataGridTextColumn Header="Last Updated" 
+                                           Binding="{Binding LastUpdatedText}" 
+                                           Width="120"/>
+                        
+                        <!-- Actions -->
+                        <DataGridTemplateColumn Header="Actions" Width="150">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="5">
+                                        <Button Content="📝" 
+                                               ToolTip.Tip="Edit Stock"
+                                               Command="{Binding $parent[UserControl].((vm:InventoryViewModel)DataContext).EditStockCommand}"
+                                               CommandParameter="{Binding}"
+                                               Width="30" Height="30"
+                                               Padding="5"/>
+                                        <Button Content="📋" 
+                                               ToolTip.Tip="View Details"
+                                               Command="{Binding $parent[UserControl].((vm:InventoryViewModel)DataContext).ViewDetailsCommand}"
+                                               CommandParameter="{Binding}"
+                                               Width="30" Height="30"
+                                               Padding="5"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+    </Grid>
+
+</UserControl>
