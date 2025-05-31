@@ -1,0 +1,115 @@
+@startuml API_Integration_Flow_EN
+!theme plain
+skinparam sequenceArrowThickness 2
+
+participant "KitBoxDesigner\n(Desktop App)" as App
+participant "KitboxApiService\n(HTTP Client)" as ApiService
+participant "Production API\n(kitbox.msrl.be)" as API
+participant "MariaDB\n(Database)" as DB
+
+== Service Initialization ==
+App -> ApiService : new KitboxApiService()
+ApiService -> ApiService : Configure HttpClient
+note right : Base URL: https://kitbox.msrl.be
+note right : Accept: application/json
+note right : Timeout: 30 seconds
+
+== Data Retrieval Flow ==
+App -> ApiService : GetAllStockItemsAsync()
+ApiService -> API : GET /api/stocks
+API -> DB : SELECT * FROM stock s\nJOIN supplier_order so ON s.id_supplier_order = so.id
+DB --> API : Raw stock data
+API -> API : Convert to StockDto
+API --> ApiService : List<ApiStockDto> (JSON)
+ApiService -> ApiService : ConvertToStockItem(apiStock)
+
+note right of ApiService
+  Conversion includes:
+  - API DTO → Application Model
+  - Category determination
+  - Price calculations
+  - Status mapping
+end note
+
+ApiService --> App : List<StockItem>
+
+== Stock Update Flow ==
+App -> ApiService : UpdateStockAsync("TAS27", 75, "Manual Update")
+ApiService -> ApiService : Create update payload
+ApiService -> API : PUT /api/stocks/code/TAS27
+note right : Content-Type: application/json
+note right : Body: {"quantity": 75, "reason": "Manual Update"}
+
+API -> API : Validate request
+API -> DB : UPDATE stock SET quantity = 75\nWHERE code = 'TAS27'
+DB --> API : Rows affected: 1
+API --> ApiService : 200 OK
+ApiService --> App : true (success)
+
+== Parts Availability Check ==
+App -> ApiService : CheckPartsAvailabilityAsync(requirements)
+
+loop For each PartRequirement
+    ApiService -> API : GET /api/stocks?code={partCode}
+    API -> DB : SELECT quantity FROM stock WHERE code = ?
+    DB --> API : Current stock level
+    API --> ApiService : Stock quantity
+    ApiService -> ApiService : Compare required vs available
+end
+
+ApiService --> App : Dictionary<string, bool>
+
+== Error Handling Scenarios ==
+alt Network connectivity issues
+    ApiService -> API : HTTP Request
+    API --> ApiService : Timeout Exception
+    ApiService -> ApiService : Log error
+    ApiService --> App : Empty list / false result
+    
+else API server issues
+    ApiService -> API : HTTP Request
+    API --> ApiService : 500 Internal Server Error
+    ApiService -> ApiService : Log error details
+    ApiService --> App : Default/cached data
+    
+else Database connectivity problems
+    API -> DB : Database query
+    DB --> API : Connection timeout
+    API --> ApiService : 503 Service Unavailable
+    ApiService --> App : Error notification
+end
+
+== Configuration Management ==
+App -> ApiService : GetPartsByCategoryAsync(PartCategory.Door)
+ApiService -> API : GET /api/stocks
+API -> DB : Complex query with filters
+DB --> API : Filtered results
+API --> ApiService : List<ApiStockDto>
+ApiService -> ApiService : Filter by category logic
+
+note right of ApiService
+  Category determination:
+  - Parse reference string
+  - Map to PartCategory enum
+  - Apply business rules
+end note
+
+ApiService --> App : List<Part> (doors only)
+
+== Price Calculation Integration ==
+App -> ApiService : GetRequiredPartsAsync(configuration)
+ApiService -> ApiService : Use local configuration logic
+note right : No API call needed
+note right : Uses CabinetConfiguration.GetRequiredParts()
+ApiService --> App : List<PartRequirement>
+
+App -> ApiService : Multiple availability checks
+loop For each required part
+    ApiService -> API : GET /api/stocks/code/{partCode}
+    API -> DB : Stock level query
+    DB --> API : Current quantity
+    API --> ApiService : Stock data
+end
+ApiService --> App : Complete availability status
+
+@enduml

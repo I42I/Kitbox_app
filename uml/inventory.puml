@@ -1,0 +1,159 @@
+@startuml Inventory_Management_Sequence_EN
+!theme plain
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+
+actor "Stock Manager" as Manager
+participant "InventoryView" as IV
+participant "InventoryViewModel" as IVM
+participant "KitboxApiService" as API
+database "MariaDB\n(Production)" as DB
+
+== Inventory Dashboard Loading ==
+Manager -> IV : Open inventory management
+IV -> IVM : new InventoryViewModel()
+IVM -> IVM : IsLoading = true
+IVM -> API : GetAllStockItemsAsync()
+API -> DB : GET /api/stocks
+DB --> API : List<ApiStockDto>
+
+loop For each stock item
+    API -> API : ConvertToStockItem(apiStock)
+end
+
+API --> IVM : List<StockItem>
+IVM -> IVM : StockItems.Clear()
+IVM -> IVM : StockItems.AddRange(stocks)
+IVM -> IVM : IsLoading = false
+IVM --> IV : Stock grid populated
+
+== Search and Filtering ==
+Manager -> IV : Type "TAS" in search box
+IV -> IVM : SearchText = "TAS"
+IVM -> IVM : FilterStocksCommand.Execute()
+IVM -> IVM : ApplyFilter()
+
+note right of IVM
+  Filter logic:
+  - Text search on PartCode/Reference
+  - Category filtering
+  - Stock status filtering
+end note
+
+IVM --> IV : Filtered list displayed
+
+Manager -> IV : Enable "Low Stock Only"
+IV -> IVM : ShowLowStockOnly = true
+IVM -> API : GetLowStockItemsAsync()
+API -> API : Filter stocks where CurrentStock < ReorderPoint
+API --> IVM : List<StockItem> (low stock items)
+IVM --> IV : Only low stock items shown
+
+== Stock Alerts System ==
+IVM -> API : GetStockAlertsAsync()
+API -> API : Check stocks below reorder point
+
+loop For each low stock item
+    API -> API : Create StockAlert
+    note right : Alert contains:
+    note right : - Part code
+    note right : - Current quantity
+    note right : - Reorder point
+    note right : - Alert message
+end
+
+API --> IVM : List<StockAlert>
+IVM --> IV : Alert notifications displayed
+
+== Stock Level Updates ==
+Manager -> IV : Modify TAS27 quantity: 50 → 75
+IV -> IVM : UpdateStockQuantity("TAS27", 75)
+IVM -> API : UpdateStockAsync("TAS27", 75, "Manual Update")
+API -> DB : PUT /api/stocks/code/TAS27
+
+note right of DB
+  Update request body:
+  {
+    "quantity": 75,
+    "reason": "Manual Update"
+  }
+end note
+
+DB --> API : Success (200 OK)
+API --> IVM : true
+IVM -> IVM : RefreshStockItem("TAS27")
+IVM --> IV : "Stock updated successfully"
+
+== Bulk Operations ==
+Manager -> IV : Select multiple items
+Manager -> IV : Click "Update Selected"
+IV -> IVM : UpdateSelectedCommand.Execute()
+
+loop For each selected item
+    IVM -> API : UpdateStockAsync(partCode, newQuantity, reason)
+    API -> DB : PUT /api/stocks/code/{partCode}
+    DB --> API : Update response
+end
+
+IVM --> IV : "Bulk update completed"
+
+== Supplier Integration ==
+Manager -> IV : View supplier information
+IV -> IVM : ViewSupplierCommand.Execute()
+IVM -> API : GetSupplierDetailsAsync(partCode)
+API -> DB : GET /api/suppliers/by-part/{partCode}
+
+note right of DB
+  Join query:
+  - Stock table
+  - SupplierOrder table  
+  - Supplier table
+end note
+
+DB --> API : SupplierDto with pricing
+API --> IVM : Supplier details
+IVM --> IV : Supplier info popup displayed
+
+== Report Generation ==
+Manager -> IV : Click "Export Report"
+IV -> IVM : ExportReportCommand.Execute()
+IVM -> IVM : GenerateInventoryReport()
+
+note right of IVM
+  Report includes:
+  - Current stock levels
+  - Low stock items
+  - Reorder recommendations
+  - Value calculations
+end note
+
+IVM -> IVM : SaveReportToFile()
+IVM --> IV : "Report exported to Desktop"
+
+== Real-time Stock Monitoring ==
+loop Every 30 seconds
+    IVM -> API : GetStockSummaryAsync()
+    API -> DB : Aggregate stock queries
+    DB --> API : StockSummary
+    API --> IVM : Summary statistics
+    IVM --> IV : Dashboard counters updated
+end
+
+== Error Handling ==
+alt Network connectivity issues
+    API -> API : HttpClient timeout
+    API --> IVM : Empty list
+    IVM --> IV : "Unable to connect to server"
+    
+else Database connection problems
+    DB --> API : Connection error
+    API --> IVM : Exception thrown
+    IVM --> IV : "Database temporarily unavailable"
+    
+else Invalid stock update
+    DB --> API : Validation error (400 Bad Request)
+    API --> IVM : false
+    IVM --> IV : "Invalid stock quantity"
+end
+
+@enduml

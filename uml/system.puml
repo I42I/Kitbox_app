@@ -1,0 +1,109 @@
+@startuml System_Architecture_EN
+!theme plain
+skinparam componentStyle uml2
+skinparam linetype ortho
+
+package "Frontend - KitBoxDesigner Desktop App" {
+    [Views\n(Avalonia UI)] as Views
+    [ViewModels\n(MVVM Pattern)] as ViewModels
+    [Models\n(Business Objects)] as Models
+    [Services\n(API Integration)] as Services
+    [Data\n(Local Cache)] as LocalData
+}
+
+package "Backend - Production API" {
+    [Controllers\n(REST Endpoints)] as Controllers
+    [DTOs\n(Data Transfer)] as DTOs
+    [Models\n(Entity Framework)] as ApiModels
+    [Data Context\n(EF Core)] as DataContext
+}
+
+package "Database Layer" {
+    database "MariaDB 11.5\n(Docker Container)" as MariaDB
+}
+
+package "Infrastructure" {
+    cloud "Docker Environment" {
+        [KitboxAPI Container\n(ASP.NET Core 9.0)] as APIContainer
+        [MariaDB Container\n(Persistent Storage)] as DBContainer
+        [Traefik Proxy\n(Reverse Proxy + SSL)] as Traefik
+    }
+}
+
+package "External Systems" {
+    [Let's Encrypt\n(SSL Certificates)] as LetsEncrypt
+    [DNS\n(kitbox.msrl.be)] as DNS
+}
+
+' Frontend Internal Relations
+Views --> ViewModels : Data Binding
+ViewModels --> Services : Business Logic
+Services --> Models : Domain Objects
+ViewModels --> Models : Configuration
+LocalData --> Models : Caching
+
+' API Internal Relations
+Controllers --> DTOs : Response Mapping
+Controllers --> ApiModels : Entity Operations
+ApiModels --> DataContext : EF Core Mapping
+DataContext --> MariaDB : SQL Queries
+
+' Cross-System Communication
+Services --> Controllers : HTTPS Requests\n(JSON/REST)
+Controllers --> Services : JSON Responses
+
+' Infrastructure Relations
+APIContainer --> DBContainer : Database Connection\n(Port 3306)
+Traefik --> APIContainer : Load Balancing\n(Port 50097)
+Services --> Traefik : HTTPS API Calls\n(Port 443)
+
+' External Dependencies
+Traefik --> LetsEncrypt : Certificate Management
+DNS --> Traefik : Domain Resolution
+LetsEncrypt --> Traefik : SSL Certificate Provisioning
+
+' Data Flow Annotations
+note right of Services
+  KitboxApiService implements:
+  - IStockService
+  - IPartService
+  
+  Handles:
+  - API communication
+  - Data conversion
+  - Error handling
+  - Retry logic
+end note
+
+note right of Controllers
+  REST Endpoints:
+  - /api/stocks
+  - /api/customerorders
+  - /api/cabinets
+  - /api/lockers
+  - /api/suppliers
+end note
+
+note right of MariaDB
+  Database Schema:
+  - customer_order
+  - cabinet
+  - locker
+  - stock
+  - supplier
+  - supplier_order
+  - locker_stock
+end note
+
+note bottom of APIContainer
+  Production URL:
+  https://kitbox.msrl.be
+  
+  Features:
+  - Swagger/OpenAPI docs
+  - CORS for desktop clients
+  - Enum serialization
+  - Health monitoring
+end note
+
+@enduml

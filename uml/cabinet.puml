@@ -1,0 +1,139 @@
+@startuml Cabinet_Configuration_Sequence_EN
+!theme plain
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam maxmessagesize 300
+
+actor "Customer/Salesperson" as User
+participant "ConfiguratorView" as CV
+participant "ConfiguratorViewModel" as CVM
+participant "KitboxApiService" as API
+participant "PriceCalculatorService" as PCS
+participant "CabinetConfiguration" as CC
+database "MariaDB\n(Production API)" as DB
+
+== Application Initialization ==
+User -> CV : Launch KitBoxDesigner
+CV -> CVM : new ConfiguratorViewModel()
+CVM -> API : LoadAvailableOptionsAsync()
+API -> DB : GET /api/stocks
+DB --> API : List<ApiStockDto>
+API -> API : ConvertToPart(apiStock)
+API --> CVM : List<Part> (converted)
+CVM --> CV : Available options loaded
+
+== Step 1: Cabinet Dimensions ==
+User -> CV : Select width (62cm)
+CV -> CVM : SelectedWidth = 62
+CVM -> CVM : SafeRaisePropertyChanged("SelectedWidth")
+
+User -> CV : Select depth (35cm)
+CV -> CVM : SelectedDepth = 35.0
+CVM -> CVM : SafeRaisePropertyChanged("SelectedDepth")
+
+User -> CV : Click "Next"
+CV -> CVM : NextStepCommand.Execute()
+CVM -> CVM : CurrentStep = 1
+CVM -> CVM : ValidateDimensions()
+
+== Step 2: Compartment Configuration ==
+User -> CV : Select 3 compartments
+CV -> CVM : CompartmentCount = 3
+CVM -> CVM : UpdateCompartments()
+CVM -> CC : new CabinetConfiguration()
+CC --> CVM : Configuration created
+
+loop For each compartment
+    User -> CV : Configure height (32cm)
+    CV -> CVM : CompartmentHeights[i].Height = 32
+    CVM -> CC : Compartments.Add(new Compartment())
+    CVM -> CVM : ValidateCompartmentHeight()
+end
+
+User -> CV : Click "Next"
+CV -> CVM : NextStepCommand.Execute()
+CVM -> CVM : ValidateCompartmentConfiguration()
+
+== Step 3: Colors and Doors ==
+User -> CV : Select White color
+CV -> CVM : SelectedColor = "White"
+CVM -> CC : Color = CabinetColor.White
+
+User -> CV : Enable doors for compartment 1
+CV -> CVM : CompartmentHeights[0].HasDoor = true
+CVM -> CC : Compartments[0].HasDoor = true
+CVM -> CC : Compartments[0].DoorType = DoorType.Standard
+
+User -> CV : Select door color
+CV -> CVM : CompartmentHeights[0].DoorColor = DoorColor.White
+CVM -> CC : Compartments[0].DoorColor = DoorColor.White
+
+== Step 4: Validation and Pricing ==
+User -> CV : Click "Calculate Price"
+CV -> CVM : CalculatePriceCommand.Execute()
+CVM -> CC : GetRequiredParts()
+CC --> CVM : List<PartRequirement>
+
+CVM -> API : CheckPartsAvailabilityAsync(requirements)
+API -> DB : GET /api/stocks (availability check)
+DB --> API : Current stock levels
+API -> API : ConvertToStockItem(apiStock)
+API --> CVM : Dictionary<string, bool>
+
+alt All parts available
+    CVM -> PCS : CalculatePrice(configuration)
+    PCS -> PCS : CalculatePartsPrice()
+    PCS -> PCS : CalculateAssemblyPrice()
+    PCS -> PCS : CalculateDeliveryPrice()
+    PCS --> CVM : PriceBreakdown
+    CVM --> CV : Display price + "Stock available"
+    
+else Some parts missing
+    CVM -> PCS : CalculatePrice(configuration)
+    PCS --> CVM : PriceBreakdown
+    CVM --> CV : Display price + "Deposit required"
+    CVM -> CVM : RequiresDeposit = true
+    CVM -> CVM : CalculateDepositAmount()
+end
+
+== Order Processing ==
+User -> CV : Confirm order
+CV -> CVM : SaveOrderCommand.Execute()
+CVM -> API : CreateCompleteOrderAsync(orderDto)
+
+API -> DB : POST /api/customerorders
+note right : Create customer order
+DB --> API : CustomerOrder created
+
+API -> DB : POST /api/cabinets
+note right : Create cabinet record
+DB --> API : Cabinet created
+
+loop For each compartment
+    API -> DB : POST /api/lockers
+    note right : Create locker record
+    DB --> API : Locker created
+end
+
+loop For each required part
+    API -> DB : PUT /api/stocks/{id}
+    note right : Update stock quantities
+    DB --> API : Stock updated
+end
+
+API --> CVM : Order confirmation
+CVM --> CV : "Order saved successfully"
+CV --> User : Success confirmation displayed
+
+== Error Handling ==
+alt Stock update fails
+    API --> CVM : Error response
+    CVM --> CV : "Stock reservation failed"
+    CV --> User : Error message displayed
+else Invalid configuration
+    CVM -> CVM : ValidateConfiguration()
+    CVM --> CV : Validation errors
+    CV --> User : Configuration errors shown
+end
+
+@enduml

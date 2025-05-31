@@ -1,0 +1,243 @@
+@startuml KitBoxDesigner_ClassDiagram_EN
+!theme plain
+skinparam classAttributeIconSize 0
+
+package "KitBoxDesigner.Models" {
+    class CabinetConfiguration {
+        +Width: int
+        +Height: int
+        +Depth: int
+        +Color: CabinetColor
+        +Compartments: List<Compartment>
+        +AngleIronType: AngleIronType
+        +TotalPrice: decimal
+        +IsValid: bool
+        +GetRequiredParts(): List<PartRequirement>
+        +CalculatePrice(): decimal
+    }
+    
+    class Compartment {
+        +Height: int
+        +Width: int
+        +Depth: int
+        +HasDoor: bool
+        +DoorType: DoorType
+        +DoorColor: DoorColor
+        +GetRequiredParts(): List<PartRequirement>
+    }
+    
+    class Part {
+        +Code: string
+        +Reference: string
+        +Category: PartCategory
+        +Dimensions: string
+        +Price: decimal
+        +StockQuantity: int
+        +MinimumStock: int
+        +DeliveryDelay: int
+        +IsOutOfStock: bool {readOnly}
+    }
+    
+    class StockItem {
+        +Part: Part
+        +CurrentStock: int
+        +ReservedStock: int
+        +ReorderPoint: int
+        +MaximumStockLevel: int
+        +LastUpdated: DateTime
+        +Supplier: string
+        +WarehouseLocation: string
+        +AvailableStock: int {readOnly}
+    }
+    
+    class PartRequirement {
+        +PartCode: string
+        +Quantity: int
+        +Description: string
+        +UnitPrice: decimal
+        +TotalPrice: decimal {readOnly}
+    }
+    
+    enum PartCategory {
+        VerticalBatten
+        PanelHorizontal
+        PanelVertical
+        PanelBack
+        Door
+        CrossbarLeft
+        CrossbarRight
+        CrossbarFront
+        CrossbarBack
+        AngleIron
+        Coupelles
+    }
+    
+    enum StockStatus {
+        InStock
+        LowStock
+        OutOfStock
+        Reserved
+    }
+}
+
+package "KitBoxDesigner.Services" {
+    interface IStockService {
+        +GetAllStockItemsAsync(): Task<List<StockItem>>
+        +GetStockItemByCodeAsync(string): Task<StockItem?>
+        +GetLowStockItemsAsync(): Task<List<StockItem>>
+        +UpdateStockAsync(string, int, string): Task<bool>
+        +CheckAvailabilityAsync(string, int): Task<bool>
+        +GetStockSummaryAsync(): Task<StockSummary>
+        +ReserveStockAsync(string, int): Task<bool>
+        +ReleaseReservedStockAsync(string, int): Task<bool>
+    }
+    
+    interface IPartService {
+        +GetAllPartsAsync(): Task<List<Part>>
+        +GetPartByCodeAsync(string): Task<Part?>
+        +GetPartsByCategoryAsync(PartCategory): Task<List<Part>>
+        +SearchPartsAsync(string): Task<List<Part>>
+        +CheckPartsAvailabilityAsync(List<PartRequirement>): Task<Dictionary<string, bool>>
+        +GetRequiredPartsAsync(CabinetConfiguration): Task<List<PartRequirement>>
+        +UpdatePartStockAsync(string, int): Task<bool>
+    }
+    
+    interface IPriceCalculatorService {
+        +CalculatePrice(CabinetConfiguration): Task<PriceBreakdown>
+        +GetPartPrice(string): Task<decimal>
+        +CalculateAssemblyPrice(CabinetConfiguration): decimal
+        +CalculateDeliveryPrice(double): decimal
+    }
+    
+    class KitboxApiService {
+        -_httpClient: HttpClient
+        -BaseUrl: string
+        +GetAllStockItemsAsync(): Task<List<StockItem>>
+        +GetAllPartsAsync(): Task<List<Part>>
+        +UpdateStockAsync(string, int, string): Task<bool>
+        +CheckPartsAvailabilityAsync(List<PartRequirement>): Task<Dictionary<string, bool>>
+        -ConvertToStockItem(ApiStockDto): StockItem
+        -ConvertToPart(ApiStockDto): Part
+        -DetermineCategoryEnum(string): PartCategory
+    }
+    
+    class ApiStockDto {
+        +Id: int
+        +Reference: string?
+        +Code: string?
+        +Dimensions: string?
+        +Quantity: int
+        +Status: string
+        +Location: string?
+        +PriceSupplier1: decimal
+        +DelaySupplier1: string?
+    }
+}
+
+package "KitBoxDesigner.ViewModels" {
+    abstract class ViewModelBase {
+        +SafeRaisePropertyChanged(string): void
+        +RunOnUIThread(Action): void
+        +SafeRaiseAndSetIfChanged<T>(ref T, T, string): bool
+    }
+    
+    class ConfiguratorViewModel {
+        +CurrentStep: int
+        +SelectedWidth: int
+        +SelectedHeight: int
+        +SelectedDepth: double
+        +SelectedColor: string
+        +CompartmentCount: int
+        +CompartmentHeights: ObservableCollection<CompartmentHeightModel>
+        +Configuration: CabinetConfiguration?
+        +NextStepCommand: ICommand
+        +PreviousStepCommand: ICommand
+        +SaveConfigurationCommand: ICommand
+        +LoadAvailableOptionsAsync(): Task
+    }
+    
+    class InventoryViewModel {
+        +StockItems: ObservableCollection<StockItem>
+        +SearchText: string
+        +SelectedCategory: string
+        +ShowLowStockOnly: bool
+        +CurrentFilter: InventoryFilter
+        +StatusMessage: string
+        +IsLoading: bool
+        +LoadStocksCommand: ICommand
+        +FilterStocksCommand: ICommand
+        +RefreshCommand: ICommand
+        -ApplyFilter(): void
+    }
+    
+    class PriceCalculatorViewModel {
+        +Configuration: CabinetConfiguration?
+        +PriceBreakdown: PriceBreakdown?
+        +LineItems: ObservableCollection<PriceLineItem>
+        +IncludeAssembly: bool
+        +IncludeDelivery: bool
+        +DeliveryDistance: double
+        +TotalPrice: double {readOnly}
+        +FormattedTotalPrice: string {readOnly}
+        +CalculatePriceCommand: ICommand
+        +ExportBreakdownCommand: ICommand
+        +SetConfiguration(CabinetConfiguration): void
+    }
+    
+    class StockCheckerViewModel {
+        +RequiredParts: ObservableCollection<PartRequirement>
+        +AvailabilityResults: ObservableCollection<PartAvailability>
+        +OverallStatus: string
+        +CheckAvailabilityCommand: ICommand
+        +RefreshStockCommand: ICommand
+    }
+}
+
+package "KitBoxDesigner.Views" {
+    class MainWindow {
+        +DataContext: MainWindowViewModel
+    }
+    
+    class ConfiguratorView {
+        +DataContext: ConfiguratorViewModel
+    }
+    
+    class InventoryView {
+        +DataContext: InventoryViewModel
+    }
+    
+    class PriceCalculatorView {
+        +DataContext: PriceCalculatorViewModel
+    }
+}
+
+' Relationships
+CabinetConfiguration "1" *-- "many" Compartment : contains
+CabinetConfiguration "1" --> "many" PartRequirement : requires
+StockItem "1" *-- "1" Part : references
+Part --> PartCategory : categorized by
+StockItem --> StockStatus : has status
+
+' Service implementations
+KitboxApiService ..|> IStockService : implements
+KitboxApiService ..|> IPartService : implements
+KitboxApiService --> ApiStockDto : uses
+
+' ViewModel inheritance
+ConfiguratorViewModel --|> ViewModelBase
+InventoryViewModel --|> ViewModelBase
+PriceCalculatorViewModel --|> ViewModelBase
+StockCheckerViewModel --|> ViewModelBase
+
+' View-ViewModel relationships
+ConfiguratorView --> ConfiguratorViewModel : binds to
+InventoryView --> InventoryViewModel : binds to
+PriceCalculatorView --> PriceCalculatorViewModel : binds to
+
+' Service dependencies
+ConfiguratorViewModel --> IPartService : uses
+ConfiguratorViewModel --> IPriceCalculatorService : uses
+InventoryViewModel --> IStockService : uses
+PriceCalculatorViewModel --> IPriceCalculatorService : uses
+
+@enduml
