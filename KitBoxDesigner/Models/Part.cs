@@ -26,6 +26,23 @@ namespace KitBoxDesigner.Models
         /// </summary>
         public string Dimensions { get; set; } = string.Empty;
 
+        // Parsed dimensions
+        public int? Height { get; set; }
+        public int? Width { get; set; }
+        public int? Depth { get; set; }
+
+        /// <summary>
+        /// Color/finish of the part
+        /// </summary>
+        public string? Color { get; set; } = "Default";
+
+        /// <summary>
+        /// TypeAttribute can be used for specific characteristics not covered by Category or Color
+        /// e.g., material for doors (Glass), specific type of angle iron.
+        /// PartService.FindPartBySpecificationAsync currently checks this against Reference and Code.
+        /// </summary>
+        public string? TypeAttribute { get; set; } 
+
         /// <summary>
         /// Price per unit in EUR
         /// </summary>
@@ -50,11 +67,6 @@ namespace KitBoxDesigner.Models
         /// Category of the part (Vertical Batten, Crossbar, Panel, etc.)
         /// </summary>
         public PartCategory Category { get; set; }
-
-        /// <summary>
-        /// Color/finish of the part
-        /// </summary>
-        public string Color { get; set; } = "Default";
 
         /// <summary>
         /// Check if part is in stock
@@ -99,6 +111,12 @@ namespace KitBoxDesigner.Models
         /// </summary>
         public string DisplayName => $"{Reference} ({Code})";
 
+        // Supplier-specific information
+        public decimal? PriceSupplier1 { get; set; }
+        public string? DelaySupplier1 { get; set; }
+        public decimal? PriceSupplier2 { get; set; }
+        public string? DelaySupplier2 { get; set; }
+
         public override string ToString()
         {
             return $"{Code} - {Reference} ({Dimensions}) - €{Price:F2}";
@@ -115,13 +133,20 @@ namespace KitBoxDesigner.Models
         CrossbarRight,
         CrossbarFront,
         CrossbarBack,
+        CrossbarSide, // Added
         PanelHorizontal,
         PanelVertical,
+        PanelSide, // Added
         PanelBack,
         Door,
         AngleIron,
-        Coupelles,
-        Hardware
+        Coupelles, // Make sure this matches usage in PartService
+        Hardware, // General hardware category
+        Batten, // General batten category if needed
+        Crossbar, // General crossbar category if needed
+        Panel, // General panel category if needed
+        CupHandle, // If Coupelles is meant to be CupHandle
+        Unknown // Ensure Unknown is present
     }
 
     /// <summary>

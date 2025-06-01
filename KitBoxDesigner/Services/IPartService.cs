@@ -68,5 +68,12 @@ namespace KitBoxDesigner.Services
         /// Release reserved parts
         /// </summary>
         Task<bool> ReleasePartsAsync(List<PartRequirement> requirements);
+
+        /// <summary>
+        /// Finds a specific part from stock that matches the given specification.
+        /// </summary>
+        /// <param name="specification">The characteristics of the part to find.</param>
+        /// <returns>The matching Part object, or null if not found.</returns>
+        Task<Part?> FindPartBySpecificationAsync(PartSpecification specification);
     }
 }

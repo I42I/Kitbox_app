@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using KitBoxDesigner.Data;
 using KitBoxDesigner.Models;
 
 namespace KitBoxDesigner.Services
@@ -18,7 +17,7 @@ namespace KitBoxDesigner.Services
 
         public StockService()
         {
-            _stockItems = PartsData.GetStockItems();
+            _stockItems = new List<StockItem>();
             _stockMovements = new List<StockMovement>();
             _stockAlerts = new List<StockAlert>();
             

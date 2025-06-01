@@ -64,6 +64,9 @@ public partial class App : Application
         services.AddSingleton<IPartService>(provider => provider.GetRequiredService<KitboxApiService>());
         services.AddSingleton<IStockService>(provider => provider.GetRequiredService<KitboxApiService>());
         
+        // Register AuthenticationService
+        services.AddSingleton<IAuthenticationService, AuthenticationService>();
+        
         // Autres services
         services.AddSingleton<IPriceCalculatorService, PriceCalculatorService>();
         services.AddSingleton<ConfigurationStorageService>();

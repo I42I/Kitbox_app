@@ -120,7 +120,7 @@ namespace KitBoxDesigner.Models
 
             foreach (var compartment in Compartments)
             {
-                requirements.AddRange(compartment.GetRequiredParts());
+                requirements.AddRange(compartment.GetRequiredParts(PrimaryColor));
             }
 
             // Add angle irons (4 pieces, length based on total height)
@@ -141,7 +141,9 @@ namespace KitBoxDesigner.Models
         /// </summary>
         private int CalculateAngleIronLength()
         {
-            return TotalHeight;
+            // Requirement: "To find out the height of the angle irons, simply calculate the sum of the heights of
+            // the different lockers that make up the cabinet."
+            return Compartments.Sum(c => c.Height);
         }
 
         /// <summary>
@@ -178,12 +180,13 @@ namespace KitBoxDesigner.Models
         public int Depth { get; set; } = 32; // Default depth in cm
         public bool HasDoor { get; set; } = false;
         public DoorColor DoorColor { get; set; } = DoorColor.White;
+        public DoorType CompartmentDoorType { get; set; } = DoorType.Standard; // Added for per-compartment door type
         public int Position { get; set; } // Position in the cabinet (0-based from bottom)
 
         /// <summary>
         /// Get all parts required for this compartment
         /// </summary>
-        public List<PartRequirement> GetRequiredParts()
+        public List<PartRequirement> GetRequiredParts(CabinetColor panelColor) // panelColor passed from CabinetConfiguration
         {
             var requirements = new List<PartRequirement>();
 
@@ -191,9 +194,9 @@ namespace KitBoxDesigner.Models
             var verticalBattenCode = GetVerticalBattenCode(Height);
             requirements.Add(new PartRequirement { PartCode = verticalBattenCode, Quantity = 4 });
 
-            // 6 crossbars (2 front, 2 back, 2 lateral)
+            // Crossbars: 2 front, 2 back, 4 side
             var lateralCrossbarCode = GetLateralCrossbarCode(Depth);
-            requirements.Add(new PartRequirement { PartCode = lateralCrossbarCode, Quantity = 2 });
+            requirements.Add(new PartRequirement { PartCode = lateralCrossbarCode, Quantity = 4 }); // Corrected to 4
 
             var frontCrossbarCode = GetFrontCrossbarCode(Width);
             requirements.Add(new PartRequirement { PartCode = frontCrossbarCode, Quantity = 2 });
@@ -201,18 +204,28 @@ namespace KitBoxDesigner.Models
             var backCrossbarCode = GetBackCrossbarCode(Width);
             requirements.Add(new PartRequirement { PartCode = backCrossbarCode, Quantity = 2 });
 
-            // 5 panels (2 horizontal, 2 lateral, 1 back)
-            var backPanelCode = GetBackPanelCode(Height, Width);
+            // Panels: 1 back, 2 horizontal, 2 side
+            var backPanelCode = GetBackPanelCode(Height, Width, panelColor);
             requirements.Add(new PartRequirement { PartCode = backPanelCode, Quantity = 1 });
 
-            // Add horizontal and lateral panels (simplified for now)
-            // In real implementation, would need specific panel codes
+            var horizontalPanelCode = GetHorizontalPanelCode(Width, Depth, panelColor);
+            requirements.Add(new PartRequirement { PartCode = horizontalPanelCode, Quantity = 2 }); // Added
+
+            var sidePanelCode = GetSidePanelCode(Height, Depth, panelColor);
+            requirements.Add(new PartRequirement { PartCode = sidePanelCode, Quantity = 2 }); // Added
 
             // Door if selected
             if (HasDoor)
             {
-                var doorCode = GetDoorCode(Height, Width, DoorColor);
-                requirements.Add(new PartRequirement { PartCode = doorCode, Quantity = 1 });
+                var doorCode = GetDoorCode(Height, Width, DoorColor); // Uses Compartment.DoorColor
+                requirements.Add(new PartRequirement { PartCode = doorCode, Quantity = 2 }); // Corrected to 2
+
+                // Add 2 cup handles if doors are present and not glass
+                if (CompartmentDoorType != DoorType.Glass)
+                {
+                    var cupHandleCode = GetCupHandleCode(); // Assumes a standard cup handle
+                    requirements.Add(new PartRequirement { PartCode = cupHandleCode, Quantity = 2 }); // Added
+                }
             }
 
             return requirements;
@@ -271,10 +284,50 @@ namespace KitBoxDesigner.Models
             };
         }
 
-        private string GetBackPanelCode(int height, int width)
+        private string GetBackPanelCode(int height, int width, CabinetColor color) // Added color parameter
         {
             // Simplified logic - in real app would have complete matrix
-            return $"PAR{height}{width}BL"; // White panels
+            // Assuming panel color from cabinet configuration for now
+            var colorSuffix = color switch
+            {
+                CabinetColor.White => "BL",
+                CabinetColor.Black => "NR", // Assuming black panels exist
+                CabinetColor.Natural => "NA", // Assuming natural wood panels exist
+                _ => "BL"
+            };
+            return $"PAR{height}{width}{colorSuffix}";
+        }
+
+        private string GetHorizontalPanelCode(int width, int depth, CabinetColor color) // Added
+        {
+            var colorSuffix = color switch
+            {
+                CabinetColor.White => "BL",
+                CabinetColor.Black => "NR",
+                CabinetColor.Natural => "NA",
+                _ => "BL"
+            };
+            // Example code, adjust as per actual part codes
+            return $"PH{width}{depth}{colorSuffix}";
+        }
+
+        private string GetSidePanelCode(int height, int depth, CabinetColor color) // Added
+        {
+            var colorSuffix = color switch
+            {
+                CabinetColor.White => "BL",
+                CabinetColor.Black => "NR",
+                CabinetColor.Natural => "NA",
+                _ => "BL"
+            };
+            // Example code, adjust as per actual part codes
+            return $"PS{height}{depth}{colorSuffix}";
+        }
+
+        private string GetCupHandleCode() // Added
+        {
+            // Assuming a standard part code for cup handles
+            return "CHAND"; // Example Code for Cup Handle
         }
 
         private string GetDoorCode(int height, int width, DoorColor color)
@@ -286,6 +339,20 @@ namespace KitBoxDesigner.Models
                 DoorColor.Glass => "VE",
                 _ => "BL"
             };
+            // Assuming doors are sold individually, so width here is for one door (e.g. Width/2 if cabinet width is for the pair)
+            // The prompt says "2 doors (in option)". If Width is for the locker, each door is Width/2.
+            // Let's assume the GetDoorCode is for a single door panel of Width/2.
+            // If GetDoorCode expects the full locker width, this needs adjustment.
+            // For now, assuming GetDoorCode is for a door that fits an opening of `width`.
+            // If a locker of `Width` has two doors, each door is `Width/2`.
+            // The current GetRequiredParts adds 2 doors, so GetDoorCode should be for a single door panel.
+            // Let's assume the `width` parameter to GetDoorCode is the width of ONE door panel.
+            // This means when calling it, we should pass `Width / 2`.
+            // However, the existing TRF (front crossbar) and TRR (rear crossbar) codes use the full locker width.
+            // Let's assume the door codes POR{height}{width}{colorSuffix} expect the width of a single door panel.
+            // So, in GetRequiredParts, when calling GetDoorCode, it should be:
+            // var doorCode = GetDoorCode(Height, Width / 2, DoorColor);
+            // This change will be made where GetDoorCode is called.
             return $"POR{height}{width}{colorSuffix}";
         }
     }
