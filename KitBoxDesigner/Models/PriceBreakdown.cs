@@ -158,6 +158,31 @@ namespace KitBoxDesigner.Models
         public int DaysRemaining => Math.Max(0, (ExpirationDate - DateTime.Now).Days);
 
         /// <summary>
+        /// Formatted parts subtotal for display
+        /// </summary>
+        public string FormattedPartsSubtotal => $"€{PartsSubtotal:F2}";
+
+        /// <summary>
+        /// Formatted assembly subtotal for display
+        /// </summary>
+        public string FormattedAssemblySubtotal => $"€{AssemblySubtotal:F2}";
+
+        /// <summary>
+        /// Formatted delivery subtotal for display
+        /// </summary>
+        public string FormattedDeliverySubtotal => $"€{DeliverySubtotal:F2}";
+
+        /// <summary>
+        /// Formatted subtotal for display
+        /// </summary>
+        public string FormattedSubtotal => $"€{Subtotal:F2}";
+
+        /// <summary>
+        /// Formatted total price for display
+        /// </summary>
+        public string FormattedTotalPrice => $"€{TotalPrice:F2}";
+
+        /// <summary>
         /// Get breakdown by category
         /// </summary>
         public Dictionary<PartCategory, decimal> GetBreakdownByCategory()

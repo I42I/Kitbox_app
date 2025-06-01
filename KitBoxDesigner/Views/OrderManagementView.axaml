@@ -1,0 +1,296 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:KitBoxDesigner.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="KitBoxDesigner.Views.OrderManagementView"
+             x:DataType="vm:OrderManagementViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Border.section-card">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+        
+        <Style Selector="TextBlock.page-title">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#1976D2"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+        </Style>
+        
+        <Style Selector="TextBlock.section-title">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#333"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+        
+        <Style Selector="Button.action-button">
+            <Setter Property="Background" Value="#4CAF50"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        
+        <Style Selector="Button.secondary-button">
+            <Setter Property="Background" Value="#2196F3"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+          <Style Selector="DataGrid">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="RowBackground" Value="White"/>
+        </Style>
+
+        <Style Selector="ComboBox.filter-combo">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="MinWidth" Value="120"/>
+        </Style>
+
+        <Style Selector="TextBox.search-box">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="MinWidth" Value="200"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <TextBlock Classes="page-title" Text="Order Management"/>
+            <TextBlock Text="👥" FontSize="24" Margin="10,0,0,0" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" ColumnDefinitions="2*,*" Margin="0,0,20,0">
+            <!-- Left Panel - Orders List -->
+            <StackPanel Grid.Column="0">
+                
+                <!-- Controls -->
+                <Border Classes="section-card">
+                    <StackPanel>
+                        <TextBlock Classes="section-title" Text="Filters &amp; Actions"/>
+                        
+                        <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" Margin="0,0,0,10">
+                            <!-- Search -->
+                            <TextBlock Grid.Column="0" Text="Search:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBox Grid.Column="1" 
+                                   Classes="search-box"
+                                   Watermark="Search by customer name, email, or order ID..."
+                                   Text="{Binding SearchText}"/>
+                            
+                            <!-- Status Filter -->
+                            <TextBlock Grid.Column="2" Text="Status:" VerticalAlignment="Center" Margin="15,0,10,0"/>                            <ComboBox Grid.Column="3" 
+                                    Classes="filter-combo"
+                                    ItemsSource="{Binding StatusFilters}"
+                                    SelectedItem="{Binding FilterStatus}"/>
+                            
+                            <!-- Actions -->
+                            <StackPanel Grid.Column="4" Orientation="Horizontal">
+                                <Button Classes="secondary-button"
+                                       Content="🔄 Refresh"
+                                       Command="{Binding RefreshCommand}"/>
+                                <Button Classes="secondary-button"
+                                       Content="📊 Export"
+                                       Command="{Binding ExportOrdersCommand}"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <!-- Status -->
+                        <StackPanel Orientation="Horizontal" IsVisible="{Binding IsLoading}">
+                            <TextBlock Text="⏳" FontSize="16"/>
+                            <TextBlock Text="Loading orders..." FontStyle="Italic" Margin="10,0"/>
+                        </StackPanel>
+                        
+                        <TextBlock Text="{Binding StatusMessage}" 
+                                  TextWrapping="Wrap"
+                                  FontSize="12"
+                                  Foreground="#666"
+                                  Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Orders List -->
+                <Border Classes="section-card">
+                    <StackPanel>
+                        <TextBlock Classes="section-title" Text="Customer Orders"/>
+                        
+                        <DataGrid ItemsSource="{Binding FilteredOrders}"
+                                 SelectedItem="{Binding SelectedOrder}"
+                                 AutoGenerateColumns="False"
+                                 CanUserReorderColumns="False"
+                                 CanUserResizeColumns="True"
+                                 Height="500"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                            
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Order ID" 
+                                                   Binding="{Binding OrderId}" 
+                                                   Width="120"/>
+                                
+                                <DataGridTextColumn Header="Date" 
+                                                   Binding="{Binding FormattedOrderDate}" 
+                                                   Width="130"/>
+                                
+                                <DataGridTextColumn Header="Customer" 
+                                                   Binding="{Binding CustomerName}" 
+                                                   Width="150"/>
+                                
+                                <DataGridTextColumn Header="Email" 
+                                                   Binding="{Binding CustomerEmail}" 
+                                                   Width="180"/>
+                                
+                                <DataGridTextColumn Header="Status" 
+                                                   Binding="{Binding StatusText}" 
+                                                   Width="100"/>
+                                
+                                <DataGridTextColumn Header="Total" 
+                                                   Binding="{Binding FormattedTotalPrice}" 
+                                                   Width="100"/>
+                                
+                                <DataGridTemplateColumn Header="Actions" Width="100">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>                                            <Button Classes="secondary-button"
+                                                   Content="👁️ View"
+                                                   Command="{Binding $parent[UserControl].((vm:OrderManagementViewModel)DataContext).ViewOrderDetailsCommand}"
+                                                   CommandParameter="{Binding}"
+                                                   Padding="8,4"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Right Panel - Order Details -->
+            <StackPanel Grid.Column="1" IsVisible="{Binding SelectedOrder, Converter={x:Static ObjectConverters.IsNotNull}}">
+                
+                <!-- Customer Information -->
+                <Border Classes="section-card">
+                    <StackPanel>
+                        <TextBlock Classes="section-title" Text="Customer Information"/>
+                        
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="0,0,0,10">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" FontWeight="SemiBold" Margin="0,0,15,5"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedOrder.CustomerName}"/>
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Email:" FontWeight="SemiBold" Margin="0,0,15,5"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedOrder.CustomerEmail}"/>
+                            
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Phone:" FontWeight="SemiBold" Margin="0,0,15,5"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedOrder.CustomerPhone}"/>
+                            
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Address:" FontWeight="SemiBold" Margin="0,0,15,5"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedOrder.CustomerAddress}" TextWrapping="Wrap"/>
+                            
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Order Date:" FontWeight="SemiBold" Margin="0,0,15,0"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedOrder.FormattedOrderDate}"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Cabinet Configuration -->
+                <Border Classes="section-card">
+                    <StackPanel>
+                        <TextBlock Classes="section-title" Text="Cabinet Configuration"/>
+                        
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,0,0,10">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Dimensions:" FontWeight="SemiBold" Margin="0,0,15,5"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0} × {1} × {2} cm">
+                                        <Binding Path="SelectedOrder.Configuration.Width"/>
+                                        <Binding Path="SelectedOrder.Configuration.Height"/>
+                                        <Binding Path="SelectedOrder.Configuration.Depth"/>
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Color:" FontWeight="SemiBold" Margin="0,0,15,5"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedOrder.Configuration.Color}"/>
+                            
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Compartments:" FontWeight="SemiBold" Margin="0,0,15,5"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedOrder.Configuration.Compartments.Count}"/>
+                            
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Status:" FontWeight="SemiBold" Margin="0,0,15,0"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedOrder.StatusText}"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Price Summary -->
+                <Border Classes="section-card" 
+                       IsVisible="{Binding SelectedOrder.IsPriceCalculated}">
+                    <StackPanel>
+                        <TextBlock Classes="section-title" Text="Price Summary"/>
+                        
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Parts:" FontSize="14" Margin="0,5"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedOrder.PriceBreakdown.FormattedPartsSubtotal}" FontWeight="SemiBold" FontSize="14" Margin="0,5"/>
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Assembly:" FontSize="14" Margin="0,5"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedOrder.PriceBreakdown.FormattedAssemblySubtotal}" FontWeight="SemiBold" FontSize="14" Margin="0,5"/>
+                            
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Delivery:" FontSize="14" Margin="0,5"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedOrder.PriceBreakdown.FormattedDeliverySubtotal}" FontWeight="SemiBold" FontSize="14" Margin="0,5"/>
+                            
+                            <Rectangle Grid.Row="3" Grid.ColumnSpan="2" Height="1" Fill="#DDD" Margin="0,10"/>
+                            
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Subtotal:" FontSize="14" Margin="0,5"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedOrder.PriceBreakdown.FormattedSubtotal}" FontWeight="SemiBold" FontSize="14" Margin="0,5"/>
+                            
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="TOTAL:" FontSize="16" FontWeight="Bold" Foreground="#2E7D32" Margin="0,10,0,0"/>
+                            <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding SelectedOrder.PriceBreakdown.FormattedTotalPrice}" FontSize="16" FontWeight="Bold" Foreground="#2E7D32" Margin="0,10,0,0"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Order Actions -->
+                <Border Classes="section-card">
+                    <StackPanel>
+                        <TextBlock Classes="section-title" Text="Order Actions"/>
+                        
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+                            <Button Grid.Row="0" Grid.Column="0"
+                                   Classes="action-button"
+                                   Content="📧 Contact Customer"
+                                   HorizontalAlignment="Stretch"/>
+                            
+                            <Button Grid.Row="0" Grid.Column="1"
+                                   Classes="action-button"
+                                   Content="📋 Update Status"
+                                   HorizontalAlignment="Stretch"/>
+                            
+                            <Button Grid.Row="1" Grid.Column="0"
+                                   Classes="secondary-button"
+                                   Content="🖨️ Print Order"
+                                   HorizontalAlignment="Stretch"/>
+                            
+                            <Button Grid.Row="1" Grid.Column="1"
+                                   Classes="secondary-button"
+                                   Content="📁 Export Details"
+                                   HorizontalAlignment="Stretch"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </Grid>
+
+</UserControl>

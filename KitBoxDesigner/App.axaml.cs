@@ -67,6 +67,9 @@ public partial class App : Application
         // Register AuthenticationService
         services.AddSingleton<IAuthenticationService, AuthenticationService>();
         
+        // Register Customer Order Service
+        services.AddSingleton<ICustomerOrderService, CustomerOrderService>();
+        
         // Autres services
         services.AddSingleton<IPriceCalculatorService, PriceCalculatorService>();
         services.AddSingleton<ConfigurationStorageService>();
@@ -76,7 +79,9 @@ public partial class App : Application
         services.AddTransient<ConfiguratorViewModel>();
         services.AddTransient<InventoryViewModel>();
         services.AddTransient<StockCheckerViewModel>();
-        services.AddTransient<PriceCalculatorViewModel>();
+        services.AddTransient<StockManagementViewModel>();
+        services.AddTransient<OrderCompletionViewModel>();
+        services.AddTransient<OrderManagementViewModel>();
     }
 
     private void Desktop_ShutdownRequested(object? sender, ShutdownRequestedEventArgs e)

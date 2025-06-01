@@ -20,6 +20,7 @@ namespace KitBoxDesigner.ViewModels
         private readonly IStockService _stockService;
         private readonly IPriceCalculatorService _priceCalculatorService;
         private readonly ConfigurationStorageService _configurationStorageService;
+        private readonly Action<CabinetConfiguration>? _onCompleteConfiguration;
 
         // Configuration properties
         private CabinetConfiguration _configuration;
@@ -54,12 +55,14 @@ namespace KitBoxDesigner.ViewModels
             IPartService partService,
             IStockService stockService,
             IPriceCalculatorService priceCalculatorService,
-            ConfigurationStorageService configurationStorageService)
+            ConfigurationStorageService configurationStorageService,
+            Action<CabinetConfiguration>? onCompleteConfiguration = null)
         {
             _partService = partService ?? throw new ArgumentNullException(nameof(partService));
             _stockService = stockService ?? throw new ArgumentNullException(nameof(stockService));
             _priceCalculatorService = priceCalculatorService ?? throw new ArgumentNullException(nameof(priceCalculatorService));
-            _configurationStorageService = configurationStorageService ?? throw new ArgumentNullException(nameof(configurationStorageService));            // Initialize configuration
+            _configurationStorageService = configurationStorageService ?? throw new ArgumentNullException(nameof(configurationStorageService));
+            _onCompleteConfiguration = onCompleteConfiguration;            // Initialize configuration
             _configuration = new CabinetConfiguration
             {
                 Width = 60,  // Default 60cm width
@@ -83,7 +86,7 @@ namespace KitBoxDesigner.ViewModels
             LoadConfigurationCommand = new SimpleAsyncCommand(LoadConfigurationAsync);
             ResetConfigurationCommand = new SimpleCommand(ResetConfiguration);
             DeleteConfigurationCommand = new SimpleCommand(() => { /* TODO: Implement */ });            RefreshSavedConfigurationsCommand = new SimpleCommand(() => { /* TODO: Implement */ });
-            CompleteConfigurationCommand = new SimpleCommand(() => { /* TODO: Implement */ });
+            CompleteConfigurationCommand = new SimpleCommand(CompleteConfiguration);
 
             // Initialize compartments with default count
             UpdateCompartments();
@@ -673,6 +676,37 @@ namespace KitBoxDesigner.ViewModels
             catch (Exception ex)
             {
                 ErrorMessage = $"Error resetting configuration: {ex.Message}";
+            }
+        }
+
+        /// <summary>
+        /// Complete the configuration and navigate to order completion
+        /// </summary>
+        private void CompleteConfiguration()
+        {
+            try
+            {
+                if (_configuration == null)
+                {
+                    ErrorMessage = "No configuration to complete.";
+                    return;
+                }
+
+                if (!IsConfigurationValid)
+                {
+                    ErrorMessage = "Configuration is not valid. Please check all required fields.";
+                    return;
+                }
+
+                // Update the configuration with final settings
+                UpdateConfigurationCompartments();
+
+                // Invoke the navigation callback if provided
+                _onCompleteConfiguration?.Invoke(_configuration);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error completing configuration: {ex.Message}";
             }
         }
 

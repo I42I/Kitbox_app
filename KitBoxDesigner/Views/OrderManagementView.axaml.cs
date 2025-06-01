@@ -2,9 +2,9 @@ using Avalonia.Controls;
 
 namespace KitBoxDesigner.Views
 {
-    public partial class PriceCalculatorView : UserControl
+    public partial class OrderManagementView : UserControl
     {
-        public PriceCalculatorView()
+        public OrderManagementView()
         {
             InitializeComponent();
         }

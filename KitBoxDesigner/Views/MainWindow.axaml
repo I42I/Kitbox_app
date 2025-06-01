@@ -119,32 +119,22 @@
                     </Button>
                     
                     <Button Classes="nav-button"
-                            Classes.active="{Binding IsPriceCalculatorActive}"
-                            Command="{Binding ShowPriceCalculatorCommand}"
-                            IsVisible="{Binding IsAdmin}">
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Text="💰" FontSize="16"/>
-                            <TextBlock Text="Price Calculator"/>
-                        </StackPanel>
-                    </Button>
-                    
-                    <Button Classes="nav-button"
-                            Classes.active="{Binding IsInventoryActive}"
-                            Command="{Binding ShowInventoryCommand}"
+                            Classes.active="{Binding IsStockManagementActive}"
+                            Command="{Binding ShowStockManagementCommand}"
                             IsVisible="{Binding IsAdmin}">
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <TextBlock Text="📦" FontSize="16"/>
-                            <TextBlock Text="Inventory"/>
+                            <TextBlock Text="Gestion du Stock"/>
                         </StackPanel>
                     </Button>
                     
                     <Button Classes="nav-button"
-                            Classes.active="{Binding IsStockCheckerActive}"
-                            Command="{Binding ShowStockCheckerCommand}"
+                            Classes.active="{Binding IsOrderManagementActive}"
+                            Command="{Binding ShowOrderManagementCommand}"
                             IsVisible="{Binding IsAdmin}">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Text="📊" FontSize="16"/>
-                            <TextBlock Text="Stock Checker"/>
+                            <TextBlock Text="📋" FontSize="16"/>
+                            <TextBlock Text="Order Management"/>
                         </StackPanel>
                     </Button>
                     

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Windows.Input;
 using ReactiveUI;
+using KitBoxDesigner.Models;
 using KitBoxDesigner.Services;
 
 namespace KitBoxDesigner.ViewModels;
@@ -16,37 +17,38 @@ public class MainWindowViewModel : ViewModelBase
     private readonly IPriceCalculatorService _priceCalculatorService;
     private readonly ConfigurationStorageService _configurationStorageService;
     private readonly IAuthenticationService _authenticationService;
+    private readonly ICustomerOrderService _customerOrderService;
 
     private ViewModelBase _currentViewModel;
     private string _statusMessage = "Ready";
 
     // Navigation state
     private bool _isConfiguratorActive = true;
-    private bool _isPriceCalculatorActive;
-    private bool _isInventoryActive;
-    private bool _isStockCheckerActive;
+    private bool _isStockManagementActive;
+    private bool _isOrderManagementActive;
 
     public MainWindowViewModel(
         IPartService partService, 
         IStockService stockService, 
         IPriceCalculatorService priceCalculatorService,
         ConfigurationStorageService configurationStorageService,
-        IAuthenticationService authenticationService)
+        IAuthenticationService authenticationService,
+        ICustomerOrderService customerOrderService)
     {
         _partService = partService;
         _stockService = stockService;
         _priceCalculatorService = priceCalculatorService;
         _configurationStorageService = configurationStorageService;
         _authenticationService = authenticationService;
+        _customerOrderService = customerOrderService;
 
         // Initialize with configurator view
-        _currentViewModel = new ConfiguratorViewModel(_partService, _stockService, _priceCalculatorService, _configurationStorageService);
+        _currentViewModel = new ConfiguratorViewModel(_partService, _stockService, _priceCalculatorService, _configurationStorageService, ShowOrderCompletion);
 
         // Initialize commands
         ShowConfiguratorCommand = new SimpleCommand(ShowConfigurator);
-        ShowInventoryCommand = new SimpleCommand(ShowInventory, () => _authenticationService.IsAdmin);
-        ShowStockCheckerCommand = new SimpleCommand(ShowStockChecker, () => _authenticationService.IsAdmin);
-        ShowPriceCalculatorCommand = new SimpleCommand(ShowPriceCalculator, () => _authenticationService.IsAdmin);
+        ShowStockManagementCommand = new SimpleCommand(ShowStockManagement, () => _authenticationService.IsAdmin);
+        ShowOrderManagementCommand = new SimpleCommand(ShowOrderManagement, () => _authenticationService.IsAdmin);
         LoginCommand = new SimpleCommand(ShowLogin);
         LogoutCommand = new SimpleCommand(Logout);
 
@@ -79,22 +81,16 @@ public class MainWindowViewModel : ViewModelBase
         set => this.SafeRaiseAndSetIfChanged(ref _isConfiguratorActive, value);
     }
 
-    public bool IsPriceCalculatorActive
+    public bool IsStockManagementActive
     {
-        get => _isPriceCalculatorActive;
-        set => this.SafeRaiseAndSetIfChanged(ref _isPriceCalculatorActive, value);
+        get => _isStockManagementActive;
+        set => this.SafeRaiseAndSetIfChanged(ref _isStockManagementActive, value);
     }
 
-    public bool IsInventoryActive
+    public bool IsOrderManagementActive
     {
-        get => _isInventoryActive;
-        set => this.SafeRaiseAndSetIfChanged(ref _isInventoryActive, value);
-    }
-
-    public bool IsStockCheckerActive
-    {
-        get => _isStockCheckerActive;
-        set => this.SafeRaiseAndSetIfChanged(ref _isStockCheckerActive, value);
+        get => _isOrderManagementActive;
+        set => this.SafeRaiseAndSetIfChanged(ref _isOrderManagementActive, value);
     }
 
     // Authentication properties
@@ -103,9 +99,8 @@ public class MainWindowViewModel : ViewModelBase
 
     // Navigation Commands
     public ICommand ShowConfiguratorCommand { get; }
-    public ICommand ShowInventoryCommand { get; }
-    public ICommand ShowStockCheckerCommand { get; }
-    public ICommand ShowPriceCalculatorCommand { get; }
+    public ICommand ShowStockManagementCommand { get; }
+    public ICommand ShowOrderManagementCommand { get; }
     public ICommand LoginCommand { get; }
     public ICommand LogoutCommand { get; }
 
@@ -118,7 +113,7 @@ public class MainWindowViewModel : ViewModelBase
         {
             // Make sure we're on the UI thread for all UI operations
             EnsureUIThread(() => {
-                CurrentViewModel = new ConfiguratorViewModel(_partService, _stockService, _priceCalculatorService, _configurationStorageService);
+                CurrentViewModel = new ConfiguratorViewModel(_partService, _stockService, _priceCalculatorService, _configurationStorageService, ShowOrderCompletion);
                 UpdateNavigationState(configurator: true);
                 StatusMessage = "Cabinet Configurator - Design your custom cabinet";
             });
@@ -130,73 +125,120 @@ public class MainWindowViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Navigate to inventory management
+    /// Navigate to stock management (tabbed view)
     /// </summary>
-    private void ShowInventory()
+    private void ShowStockManagement()
     {
         try
         {
             EnsureUIThread(() => {
-                CurrentViewModel = new InventoryViewModel(_partService, _stockService);
-                UpdateNavigationState(inventory: true);
-                StatusMessage = "Inventory Management - Manage parts and stock levels";
+                CurrentViewModel = new StockManagementViewModel(_partService, _stockService);
+                UpdateNavigationState(stockManagement: true);
+                StatusMessage = "Gestion du Stock - Inventaire et vérification du stock";
             });
         }
         catch (Exception ex)
         {
-            HandleNavigationError("inventory", ex);
+            HandleNavigationError("gestion du stock", ex);
         }
     }
 
     /// <summary>
-    /// Navigate to stock checker
+    /// Navigate to order management (admin only)
     /// </summary>
-    private void ShowStockChecker()
+    private void ShowOrderManagement()
     {
         try
         {
             EnsureUIThread(() => {
-                CurrentViewModel = new StockCheckerViewModel(_stockService, _partService);
-                UpdateNavigationState(stockChecker: true);
-                StatusMessage = "Stock Checker - Check availability and stock levels";
+                CurrentViewModel = new OrderManagementViewModel(_customerOrderService, _priceCalculatorService);
+                UpdateNavigationState(orderManagement: true);
+                StatusMessage = "Order Management - View and manage all customer orders";
             });
         }
         catch (Exception ex)
         {
-            HandleNavigationError("stock checker", ex);
+            HandleNavigationError("order management", ex);
         }
     }
 
     /// <summary>
-    /// Navigate to price calculator
+    /// Navigate to order completion with configuration
     /// </summary>
-    private void ShowPriceCalculator()
+    public void ShowOrderCompletion(CabinetConfiguration configuration)
     {
         try
         {
             EnsureUIThread(() => {
-                CurrentViewModel = new PriceCalculatorViewModel(_priceCalculatorService, _partService);
-                UpdateNavigationState(priceCalculator: true);
-                StatusMessage = "Price Calculator - Calculate cabinet costs and generate quotes";
+                var orderCompletionViewModel = new OrderCompletionViewModel(
+                    _priceCalculatorService, 
+                    _customerOrderService, 
+                    configuration);
+                
+                // Subscribe to events for navigation
+                orderCompletionViewModel.OrderCompleted += OnOrderCompleted;
+                orderCompletionViewModel.OrderCancelled += OnOrderCancelled;
+                
+                CurrentViewModel = orderCompletionViewModel;
+                UpdateNavigationState(); // No specific navigation state for order completion
+                StatusMessage = "Order Completion - Finalize your cabinet order";
             });
         }
         catch (Exception ex)
         {
-            HandleNavigationError("price calculator", ex);
+            HandleNavigationError("order completion", ex);
         }
+    }
+
+    /// <summary>
+    /// Handle order completion event
+    /// </summary>
+    private void OnOrderCompleted(object? sender, OrderCompletedEventArgs e)
+    {
+        EnsureUIThread(() =>
+        {
+            // Unsubscribe from events
+            if (sender is OrderCompletionViewModel orderViewModel)
+            {
+                orderViewModel.OrderCompleted -= OnOrderCompleted;
+                orderViewModel.OrderCancelled -= OnOrderCancelled;
+            }
+            
+            // Navigate back to configurator after successful order
+            ShowConfigurator();
+            StatusMessage = $"Order #{e.OrderId} completed successfully! You can start a new configuration.";
+        });
+    }
+
+    /// <summary>
+    /// Handle order cancellation event
+    /// </summary>
+    private void OnOrderCancelled(object? sender, EventArgs e)
+    {
+        EnsureUIThread(() =>
+        {
+            // Unsubscribe from events
+            if (sender is OrderCompletionViewModel orderViewModel)
+            {
+                orderViewModel.OrderCompleted -= OnOrderCompleted;
+                orderViewModel.OrderCancelled -= OnOrderCancelled;
+            }
+            
+            // Navigate back to configurator
+            ShowConfigurator();
+            StatusMessage = "Order cancelled. You're back to the cabinet configurator.";
+        });
     }    /// <summary>
     /// Update navigation state to highlight active section
     /// </summary>
     private void UpdateNavigationState(
         bool configurator = false, 
-        bool inventory = false, 
-        bool stockChecker = false, 
-        bool priceCalculator = false)
+        bool stockManagement = false,
+        bool orderManagement = false)
     {
         IsConfiguratorActive = configurator;
-        IsInventoryActive = inventory;
-        IsStockCheckerActive = stockChecker;        
-        IsPriceCalculatorActive = priceCalculator;
+        IsStockManagementActive = stockManagement;
+        IsOrderManagementActive = orderManagement;
     }
       /// <summary>
     /// Ensures that the provided action is executed on the UI thread
@@ -296,9 +338,8 @@ public class MainWindowViewModel : ViewModelBase
             this.RaisePropertyChanged(nameof(CurrentUser));
             
             // Update command states
-            (ShowInventoryCommand as SimpleCommand)?.RaiseCanExecuteChanged();
-            (ShowStockCheckerCommand as SimpleCommand)?.RaiseCanExecuteChanged();
-            (ShowPriceCalculatorCommand as SimpleCommand)?.RaiseCanExecuteChanged();
+            (ShowStockManagementCommand as SimpleCommand)?.RaiseCanExecuteChanged();
+            (ShowOrderManagementCommand as SimpleCommand)?.RaiseCanExecuteChanged();
         });
     }
 
