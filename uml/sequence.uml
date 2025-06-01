@@ -1,0 +1,91 @@
+@startuml Cabinet_Configuration_Sequence
+!theme plain
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam maxmessagesize 300
+
+actor User as U
+participant "ConfiguratorView" as CV
+participant "ConfiguratorViewModel" as CVM
+participant "KitboxApiService" as API
+participant "PriceCalculatorService" as PCS
+participant "CabinetConfiguration" as CC
+database "MariaDB\n(via API)" as DB
+
+== Initialisation ==
+U -> CV : Lance l'application
+CV -> CVM : new ConfiguratorViewModel()
+CVM -> API : LoadAvailableOptionsAsync()
+API -> DB : GET /api/stocks
+DB --> API : List<ApiStockDto>
+API --> CVM : List<Part> (convertis)
+CVM --> CV : Options disponibles chargées
+
+== Configuration Étape 1 : Dimensions ==
+U -> CV : Sélectionne largeur (62cm)
+CV -> CVM : SelectedWidth = 62
+CVM -> CVM : SafeRaisePropertyChanged("SelectedWidth")
+
+U -> CV : Sélectionne profondeur (35cm)
+CV -> CVM : SelectedDepth = 35.0
+CVM -> CVM : SafeRaisePropertyChanged("SelectedDepth")
+
+U -> CV : Clique "Suivant"
+CV -> CVM : NextStepCommand.Execute()
+CVM -> CVM : CurrentStep = 1
+
+== Configuration Étape 2 : Compartiments ==
+U -> CV : Sélectionne 3 compartiments
+CV -> CVM : CompartmentCount = 3
+CVM -> CVM : UpdateCompartments()
+CVM -> CC : new CabinetConfiguration()
+CC --> CVM : Configuration créée
+
+loop Pour chaque compartiment
+    U -> CV : Configure hauteur (32cm)
+    CV -> CVM : CompartmentHeights[i].Height = 32
+    CVM -> CC : Compartments.Add(new Compartment())
+end
+
+== Configuration Étape 3 : Couleurs et Portes ==
+U -> CV : Sélectionne couleur Blanc
+CV -> CVM : SelectedColor = "White"
+CVM -> CC : Color = CabinetColor.White
+
+U -> CV : Active portes pour compartiment 1
+CV -> CVM : CompartmentHeights[0].HasDoor = true
+CVM -> CC : Compartments[0].HasDoor = true
+
+== Configuration Étape 4 : Validation et Prix ==
+U -> CV : Clique "Calculer le prix"
+CV -> CVM : CalculatePriceCommand.Execute()
+CVM -> CC : GetRequiredParts()
+CC --> CVM : List<PartRequirement>
+
+CVM -> API : CheckPartsAvailabilityAsync(requirements)
+API -> DB : GET /api/stocks (vérification disponibilité)
+DB --> API : Stock levels
+API --> CVM : Dictionary<string, bool>
+
+alt Toutes les pièces disponibles
+    CVM -> PCS : CalculatePrice(configuration)
+    PCS --> CVM : TotalPrice
+    CVM --> CV : Prix affiché + "Stock disponible"
+    
+else Certaines pièces manquantes
+    CVM --> CV : Prix affiché + "Acompte requis"
+    CVM -> CVM : RequiresDeposit = true
+end
+
+== Sauvegarde de la commande ==
+U -> CV : Confirme la commande
+CV -> CVM : SaveOrderCommand.Execute()
+CVM -> API : CreateCompleteOrderAsync(orderDto)
+API -> DB : POST /api/customerorders/complete
+DB --> API : CustomerOrderDto créé
+API --> CVM : Confirmation commande
+
+CVM --> CV : "Commande sauvegardée avec succès"
+CV --> U : Confirmation affichée
+
+@enduml

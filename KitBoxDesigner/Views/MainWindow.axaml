@@ -1,0 +1,188 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:KitBoxDesigner.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+        x:Class="KitBoxDesigner.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="KitBox Designer - Modular Cabinet System"
+        MinWidth="1000" MinHeight="700">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Window.Styles>
+        <Style Selector="Button.nav-button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#333333"/>
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+        <Style Selector="Button.nav-button:pointerover">
+            <Setter Property="Background" Value="#E3F2FD"/>
+        </Style>
+        <Style Selector="Button.nav-button.active">
+            <Setter Property="Background" Value="#2196F3"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        
+        <Style Selector="Border.header">
+            <Setter Property="Background" Value="#1976D2"/>
+            <Setter Property="Padding" Value="20,15"/>
+        </Style>
+        
+        <Style Selector="TextBlock.header-title">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        
+        <Style Selector="Border.sidebar">
+            <Setter Property="Background" Value="#F5F5F5"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+            <Setter Property="Width" Value="220"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Header -->
+        <Border Grid.Row="0" Classes="header">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" 
+                          Classes="header-title"
+                          Text="KitBox Designer"/>
+                <StackPanel Grid.Column="1" 
+                           Orientation="Horizontal" 
+                           Spacing="15"
+                           VerticalAlignment="Center">
+                    <TextBlock Text="{Binding StatusMessage}" 
+                              Foreground="White" 
+                              VerticalAlignment="Center"
+                              FontSize="12"/>
+                    
+                    <!-- User Info and Login/Logout -->
+                    <Border Background="#1565C0" 
+                           CornerRadius="4" 
+                           Padding="8,4">
+                        <TextBlock Text="{Binding CurrentUser, StringFormat='User: {0}'}" 
+                                  Foreground="White" 
+                                  FontSize="12"/>
+                    </Border>
+                    
+                    <Button IsVisible="{Binding !IsAdmin}"
+                           Command="{Binding LoginCommand}"
+                           Background="#4CAF50"
+                           Foreground="White"
+                           Padding="12,6"
+                           CornerRadius="4"
+                           BorderThickness="0"
+                           Content="Admin Login"/>
+                           
+                    <Button IsVisible="{Binding IsAdmin}"
+                           Command="{Binding LogoutCommand}"
+                           Background="#F44336"
+                           Foreground="White"
+                           Padding="12,6"
+                           CornerRadius="4"
+                           BorderThickness="0"
+                           Content="Logout"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*">
+            <!-- Sidebar Navigation -->
+            <Border Grid.Column="0" Classes="sidebar">
+                <StackPanel Margin="10" Spacing="5">
+                    <TextBlock Text="Navigation" 
+                              FontWeight="SemiBold" 
+                              Margin="10,10,10,15"
+                              Foreground="#666"/>
+                    
+                    <Button Classes="nav-button"
+                            Classes.active="{Binding IsConfiguratorActive}"
+                            Command="{Binding ShowConfiguratorCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="🔧" FontSize="16"/>
+                            <TextBlock Text="Cabinet Designer"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Classes="nav-button"
+                            Classes.active="{Binding IsPriceCalculatorActive}"
+                            Command="{Binding ShowPriceCalculatorCommand}"
+                            IsVisible="{Binding IsAdmin}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="💰" FontSize="16"/>
+                            <TextBlock Text="Price Calculator"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Classes="nav-button"
+                            Classes.active="{Binding IsInventoryActive}"
+                            Command="{Binding ShowInventoryCommand}"
+                            IsVisible="{Binding IsAdmin}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="📦" FontSize="16"/>
+                            <TextBlock Text="Inventory"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Classes="nav-button"
+                            Classes.active="{Binding IsStockCheckerActive}"
+                            Command="{Binding ShowStockCheckerCommand}"
+                            IsVisible="{Binding IsAdmin}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="📊" FontSize="16"/>
+                            <TextBlock Text="Stock Checker"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <!-- Separator -->
+                    <Border Height="1" 
+                           Background="#E0E0E0" 
+                           Margin="10,15,10,10"
+                           IsVisible="{Binding IsAdmin}"/>
+                    
+                    <TextBlock Text="Tools" 
+                              FontWeight="SemiBold" 
+                              Margin="10,5,10,10"
+                              Foreground="#666"
+                              IsVisible="{Binding IsAdmin}"/>
+                    
+                    <Button Classes="nav-button"
+                            IsVisible="{Binding IsAdmin}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="📋" FontSize="16"/>
+                            <TextBlock Text="Export Quote"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Classes="nav-button"
+                            IsVisible="{Binding IsAdmin}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="⚙️" FontSize="16"/>
+                            <TextBlock Text="Settings"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- Content Area -->
+            <ContentControl Grid.Column="1" 
+                           Content="{Binding CurrentViewModel}"
+                           Margin="20"/>
+        </Grid>
+    </Grid>
+
+</Window>
