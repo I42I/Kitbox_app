@@ -152,9 +152,9 @@ namespace KitBoxDesigner.ViewModels
                     this.SafeRaisePropertyChanged(nameof(FormattedTaxAmount));
                     this.SafeRaisePropertyChanged(nameof(FormattedTotalPrice));
                 });
-                this.RaisePropertyChanged(nameof(FormattedSubtotal));
-                this.RaisePropertyChanged(nameof(FormattedTaxAmount));
-                this.RaisePropertyChanged(nameof(FormattedTotalPrice));
+                OnPropertyChanged(nameof(FormattedSubtotal));
+                OnPropertyChanged(nameof(FormattedTaxAmount));
+                OnPropertyChanged(nameof(FormattedTotalPrice));
                 
                 StatusMessage = $"Price calculated: {FormattedTotalPrice}";
             }

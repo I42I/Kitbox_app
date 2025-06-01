@@ -14,6 +14,7 @@ namespace KitBoxDesigner.ViewModels
     {
         private readonly IStockService _stockService;
         private readonly IPartService _partService;
+        private readonly IAuthenticationService _authenticationService;
         
         private string _searchText = "";
         private bool _isLoading;
@@ -23,10 +24,14 @@ namespace KitBoxDesigner.ViewModels
         private bool _showLowStockOnly;
         private bool _showOutOfStockOnly;
 
-        public StockCheckerViewModel(IStockService stockService, IPartService partService)
+        public bool IsAdmin => _authenticationService.IsAdmin;
+
+        public StockCheckerViewModel(IStockService stockService, IPartService partService, IAuthenticationService authenticationService)
         {
             _stockService = stockService;
             _partService = partService;
+            _authenticationService = authenticationService;
+            _authenticationService.AuthenticationStateChanged += () => OnPropertyChanged(nameof(IsAdmin));
             
             StockItems = new ObservableCollection<StockItem>();
             LowStockItems = new ObservableCollection<StockItem>();

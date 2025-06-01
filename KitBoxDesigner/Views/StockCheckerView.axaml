@@ -8,323 +8,297 @@
              x:DataType="vm:StockCheckerViewModel">
 
     <UserControl.Styles>
+        <Style Selector="TextBlock.page-title">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+        </Style>
         <Style Selector="Border.section-card">
             <Setter Property="Background" Value="White"/>
             <Setter Property="BorderBrush" Value="#E0E0E0"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Padding" Value="15"/>
             <Setter Property="Margin" Value="0,0,0,15"/>
         </Style>
-        
-        <Style Selector="TextBlock.page-title">
-            <Setter Property="FontSize" Value="24"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#1976D2"/>
-            <Setter Property="Margin" Value="0,0,0,20"/>
-        </Style>
-        
         <Style Selector="TextBlock.section-title">
-            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#333"/>
-            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
         </Style>
-        
         <Style Selector="Button.check-button">
             <Setter Property="Background" Value="#4CAF50"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="Padding" Value="12,8"/>
             <Setter Property="Margin" Value="5"/>
             <Setter Property="CornerRadius" Value="4"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
-        
         <Style Selector="Button.secondary-button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#2196F3"/>
-            <Setter Property="BorderBrush" Value="#2196F3"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="Background" Value="#6c757d"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="12,8"/>
             <Setter Property="Margin" Value="5"/>
             <Setter Property="CornerRadius" Value="4"/>
         </Style>
-        
         <Style Selector="TextBlock.status-text">
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Margin" Value="0,10"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
-        
-        <Style Selector="TextBlock.status-text.success">
-            <Setter Property="Foreground" Value="#4CAF50"/>
+        <Style Selector="TextBlock.stock-status">
+            <Setter Property="Padding" Value="5,2"/>
+            <Setter Property="FontSize" Value="11"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
-        
-        <Style Selector="TextBlock.status-text.warning">
-            <Setter Property="Foreground" Value="#FF9800"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+        <Style Selector="TextBlock.stock-status.in-stock">
+            <Setter Property="Background" Value="#DCEDC8"/>
+            <Setter Property="Foreground" Value="#388E3C"/>
         </Style>
-        
-        <Style Selector="TextBlock.status-text.error">
-            <Setter Property="Foreground" Value="#F44336"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+        <Style Selector="TextBlock.stock-status.low-stock">
+            <Setter Property="Background" Value="#FFF9C4"/>
+            <Setter Property="Foreground" Value="#FFA000"/>
         </Style>
-        
-        <Style Selector="ListBox">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#E0E0E0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="4"/>
-        </Style>
-        
-        <Style Selector="ListBoxItem">
-            <Setter Property="Padding" Value="15,10"/>
-            <Setter Property="BorderBrush" Value="#F0F0F0"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
-        </Style>
-        
-        <Style Selector="ListBoxItem:selected">
-            <Setter Property="Background" Value="#E3F2FD"/>
-        </Style>
-          <Style Selector="TextBlock.stock-indicator">            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Padding" Value="6,3"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-        </Style>
-        
-        <Style Selector="TextBlock.stock-indicator.good">
-            <Setter Property="Background" Value="#E8F5E8"/>
-            <Setter Property="Foreground" Value="#2E7D32"/>
-        </Style>
-        
-        <Style Selector="TextBlock.stock-indicator.low">
-            <Setter Property="Background" Value="#FFF8E1"/>
-            <Setter Property="Foreground" Value="#F57C00"/>
-        </Style>
-        
-        <Style Selector="TextBlock.stock-indicator.empty">
-            <Setter Property="Background" Value="#FFEBEE"/>
+        <Style Selector="TextBlock.stock-status.out-of-stock">
+            <Setter Property="Background" Value="#FFCDD2"/>
             <Setter Property="Foreground" Value="#D32F2F"/>
         </Style>
     </UserControl.Styles>
 
-    <Grid RowDefinitions="Auto,*">
-        <!-- Header -->
-        <TextBlock Grid.Row="0" Classes="page-title" Text="Stock Availability Checker"/>
+    <Panel>
+        <!-- Content for Admin -->
+        <Grid RowDefinitions="Auto,*" IsVisible="{Binding IsAdmin}">
+            <!-- Header -->
+            <TextBlock Grid.Row="0" Classes="page-title" Text="Stock Checker"/>
 
-        <!-- Main Content -->
-        <Grid Grid.Row="1" ColumnDefinitions="2*,3*" Margin="0,0,20,0">
-            <!-- Left Panel - Controls -->
-            <StackPanel Grid.Column="0">
-                
-                <!-- Quick Stock Check -->
-                <Border Classes="section-card">
-                    <StackPanel>
-                        <TextBlock Classes="section-title" Text="Quick Stock Check"/>
-                        
-                        <TextBlock Text="Search for parts:" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding SearchText}"
-                                Watermark="Enter part name or code..."                        Margin="0,0,0,10"/>
-                        
-                        <Grid ColumnDefinitions="*,Auto" Margin="0,0,10,0">
-                            <Button Grid.Column="0" 
-                                   Classes="secondary-button"
-                                   Content="🔍 Search Parts"
-                                   Command="{Binding SearchCommand}"
-                                   HorizontalAlignment="Stretch"/>
-                            <Button Grid.Column="1" 
-                                   Classes="check-button"
-                                   Content="📊 Check All Stock"
-                                   Command="{Binding CheckStockCommand}"/>
-                        </Grid>
-                        
-                        <!-- Filters -->
-                        <StackPanel Margin="0,15,0,0">
-                            <TextBlock Text="Filters:" Margin="0,0,0,5"/>
-                            <CheckBox Content="Show low stock items only" 
-                                     IsChecked="{Binding ShowLowStockOnly}"
-                                     Margin="0,5"/>
-                            <CheckBox Content="Show out of stock items only" 
-                                     IsChecked="{Binding ShowOutOfStockOnly}"
-                                     Margin="0,5"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-                
-                <!-- Part Availability Check -->
-                <Border Classes="section-card">
-                    <StackPanel>
-                        <TextBlock Classes="section-title" Text="Check Part Availability"/>
-                        
-                        <TextBlock Text="Select a part:" Margin="0,0,0,5"/>
-                        <ComboBox ItemsSource="{Binding AvailableParts}"
-                                 SelectedItem="{Binding SelectedPart}"
-                                 PlaceholderText="Choose a part..."
-                                 HorizontalAlignment="Stretch"
-                                 Margin="0,0,0,10">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding DisplayName}"/>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                        
-                        <TextBlock Text="Required quantity:" Margin="0,0,0,5"/>                        <Grid ColumnDefinitions="*,Auto" Margin="0,0,10,0">
-                            <NumericUpDown Grid.Column="0"
-                                          Value="{Binding RequiredQuantity}"
-                                          Minimum="1"
-                                          Maximum="1000"
-                                          HorizontalAlignment="Stretch"/>
-                            <Button Grid.Column="1"
-                                   Classes="check-button"
-                                   Content="✓ Check"
-                                   Command="{Binding CheckPartAvailabilityCommand}"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-                
-                <!-- Stock Alerts -->
-                <Border Classes="section-card">
-                    <StackPanel>
-                        <TextBlock Classes="section-title" Text="Stock Alerts"/>
-                        
-                        <Grid ColumnDefinitions="*,*" Margin="0,0,15,0">
-                            <Border Grid.Column="0" 
-                                   Background="#FFF3E0" 
-                                   BorderBrush="#FFB74D" 
-                                   BorderThickness="1" 
-                                   CornerRadius="4" 
-                                   Padding="10">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="{Binding LowStockItems.Count}" 
-                                              FontSize="20" 
-                                              FontWeight="Bold" 
-                                              HorizontalAlignment="Center"
-                                              Foreground="#FF8F00"/>
-                                    <TextBlock Text="Low Stock" 
-                                              FontSize="12" 
-                                              HorizontalAlignment="Center"/>
-                                </StackPanel>
-                            </Border>
+            <!-- Main Content Area -->
+            <Grid Grid.Row="1" ColumnDefinitions="2*,3*" Margin="0,0,20,0">
+                <!-- Left Panel - Controls -->
+                <StackPanel Grid.Column="0">
+                    
+                    <!-- Quick Stock Check -->
+                    <Border Classes="section-card">
+                        <StackPanel>
+                            <TextBlock Classes="section-title" Text="Quick Stock Check"/>
                             
-                            <Border Grid.Column="1" 
-                                   Background="#FFEBEE" 
-                                   BorderBrush="#E57373" 
-                                   BorderThickness="1" 
-                                   CornerRadius="4" 
-                                   Padding="10">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="{Binding OutOfStockItems.Count}" 
-                                              FontSize="20" 
-                                              FontWeight="Bold" 
-                                              HorizontalAlignment="Center"
-                                              Foreground="#D32F2F"/>
-                                    <TextBlock Text="Out of Stock" 
-                                              FontSize="12" 
-                                              HorizontalAlignment="Center"/>
-                                </StackPanel>
-                            </Border>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-
-            <!-- Right Panel - Results -->
-            <StackPanel Grid.Column="1">
-                
-                <!-- Status Message -->
-                <Border Classes="section-card">
-                    <StackPanel>
-                        <TextBlock Classes="section-title" Text="Status"/>
-                        
-                        <TextBlock Classes="status-text"
-                                  Text="{Binding StatusMessage}"
-                                  IsVisible="{Binding !IsLoading}"/>
-                        
-                        <StackPanel IsVisible="{Binding IsLoading}" 
-                                   Orientation="Horizontal" 
-                                   Spacing="10">
-                            <TextBlock Text="⏳" FontSize="16"/>
-                            <TextBlock Text="Checking stock..." FontStyle="Italic"/>
+                            <TextBlock Text="Search for parts:" Margin="0,0,0,5"/>
+                            <TextBox Text="{Binding SearchText}"
+                                    Watermark="Enter part name or code..."                        Margin="0,0,0,10"/>
+                            
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,10,0">
+                                <Button Grid.Column="0" 
+                                       Classes="secondary-button"
+                                       Content="🔍 Search Parts"
+                                       Command="{Binding SearchCommand}"
+                                       HorizontalAlignment="Stretch"/>
+                                <Button Grid.Column="1" 
+                                       Classes="check-button"
+                                       Content="📊 Check All Stock"
+                                       Command="{Binding CheckStockCommand}"/>
+                            </Grid>
+                            
+                            <!-- Filters -->
+                            <StackPanel Margin="0,15,0,0">
+                                <TextBlock Text="Filters:" Margin="0,0,0,5"/>
+                                <CheckBox Content="Show low stock items only" 
+                                         IsChecked="{Binding ShowLowStockOnly}"
+                                         Margin="0,5"/>
+                                <CheckBox Content="Show out of stock items only" 
+                                         IsChecked="{Binding ShowOutOfStockOnly}"
+                                         Margin="0,5"/>
+                            </StackPanel>
                         </StackPanel>
-                    </StackPanel>
-                </Border>
-                
-                <!-- Stock Items List -->
-                <Border Classes="section-card">
-                    <StackPanel>
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Grid.Column="0" Classes="section-title" Text="Stock Items"/>
-                            <Button Grid.Column="1" 
-                                   Classes="secondary-button"
-                                   Content="🔄 Refresh"
-                                   Command="{Binding RefreshCommand}"
-                                   VerticalAlignment="Top"/>
-                        </Grid>
-                        
-                        <ScrollViewer Height="400" VerticalScrollBarVisibility="Auto">
-                            <ListBox ItemsSource="{Binding StockItems}"
-                                    SelectedItem="{Binding SelectedStockItem}">
-                                <ListBox.ItemTemplate>
+                    </Border>
+                    
+                    <!-- Part Availability Check -->
+                    <Border Classes="section-card">
+                        <StackPanel>
+                            <TextBlock Classes="section-title" Text="Check Part Availability"/>
+                            
+                            <TextBlock Text="Select a part:" Margin="0,0,0,5"/>
+                            <ComboBox ItemsSource="{Binding AvailableParts}"
+                                     SelectedItem="{Binding SelectedPart}"
+                                     PlaceholderText="Choose a part..."
+                                     HorizontalAlignment="Stretch"
+                                     Margin="0,0,0,10">
+                                <ComboBox.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid ColumnDefinitions="*,Auto,Auto">
-                                            <StackPanel Grid.Column="0">
-                                                <TextBlock Text="{Binding Part.Name}" 
-                                                          FontWeight="SemiBold"/>
-                                                <TextBlock Text="{Binding Part.Code}" 
-                                                          FontSize="12" 
-                                                          Foreground="#666"/>
-                                                <TextBlock Text="{Binding Part.FormattedPrice}" 
-                                                          FontSize="12" 
-                                                          Foreground="#666"/>
-                                            </StackPanel>
-                                            
-                                            <StackPanel Grid.Column="1" 
-                                                       VerticalAlignment="Center" 
-                                                       Margin="10,0">
-                                                <TextBlock Text="{Binding AvailableQuantity}" 
-                                                          FontWeight="Bold" 
-                                                          HorizontalAlignment="Center"/>
-                                                <TextBlock Text="available" 
-                                                          FontSize="10" 
-                                                          HorizontalAlignment="Center"
-                                                          Foreground="#666"/>
-                                            </StackPanel>
-                                            
-                                            <TextBlock Grid.Column="2"
-                                                      Classes="stock-indicator"
-                                                      Classes.good="{Binding IsInStock}"
-                                                      Classes.low="{Binding IsLowStock}"
-                                                      Classes.empty="{Binding IsOutOfStock}"
-                                                      Text="{Binding StockStatusText}"
-                                                      VerticalAlignment="Center"/>
-                                        </Grid>
+                                        <TextBlock Text="{Binding DisplayName}"/>
                                     </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                        </ScrollViewer>
-                    </StackPanel>
-                </Border>
-                
-                <!-- Actions -->
-                <Border Classes="section-card">
-                    <StackPanel>
-                        <TextBlock Classes="section-title" Text="Actions"/>
-                          <Grid ColumnDefinitions="*,*" Margin="0,0,10,0">
-                            <Button Grid.Column="0"
-                                   Classes="secondary-button"
-                                   Content="📋 Export Report"
-                                   HorizontalAlignment="Stretch"/>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                             
-                            <Button Grid.Column="1"
-                                   Classes="secondary-button"
-                                   Content="📧 Alert Suppliers"
-                                   HorizontalAlignment="Stretch"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </Grid>
-    </Grid>
+                            <TextBlock Text="Required quantity:" Margin="0,0,0,5"/>                        <Grid ColumnDefinitions="*,Auto" Margin="0,0,10,0">
+                                <NumericUpDown Grid.Column="0"
+                                              Value="{Binding RequiredQuantity}"
+                                              Minimum="1"
+                                              Maximum="1000"
+                                              HorizontalAlignment="Stretch"/>
+                                <Button Grid.Column="1"
+                                       Classes="check-button"
+                                       Content="✓ Check"
+                                       Command="{Binding CheckPartAvailabilityCommand}"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Stock Alerts -->
+                    <Border Classes="section-card">
+                        <StackPanel>
+                            <TextBlock Classes="section-title" Text="Stock Alerts"/>
+                            
+                            <Grid ColumnDefinitions="*,*" Margin="0,0,15,0">
+                                <Border Grid.Column="0" 
+                                       Background="#FFF3E0" 
+                                       BorderBrush="#FFB74D" 
+                                       BorderThickness="1" 
+                                       CornerRadius="4" 
+                                       Padding="10">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="{Binding LowStockItems.Count}" 
+                                                  FontSize="20" 
+                                                  FontWeight="Bold" 
+                                                  HorizontalAlignment="Center"
+                                                  Foreground="#FF8F00"/>
+                                        <TextBlock Text="Low Stock" 
+                                                  FontSize="12" 
+                                                  HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                
+                                <Border Grid.Column="1" 
+                                       Background="#FFEBEE" 
+                                       BorderBrush="#E57373" 
+                                       BorderThickness="1" 
+                                       CornerRadius="4" 
+                                       Padding="10">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="{Binding OutOfStockItems.Count}" 
+                                                  FontSize="20" 
+                                                  FontWeight="Bold" 
+                                                  HorizontalAlignment="Center"
+                                                  Foreground="#D32F2F"/>
+                                        <TextBlock Text="Out of Stock" 
+                                                  FontSize="12" 
+                                                  HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
 
+                <!-- Right Panel - Results -->
+                <StackPanel Grid.Column="1">
+                    
+                    <!-- Status Message -->
+                    <Border Classes="section-card">
+                        <StackPanel>
+                            <TextBlock Classes="section-title" Text="Status"/>
+                            
+                            <TextBlock Classes="status-text"
+                                      Text="{Binding StatusMessage}"
+                                      IsVisible="{Binding !IsLoading}"/>
+                            
+                            <StackPanel IsVisible="{Binding IsLoading}" 
+                                       Orientation="Horizontal" 
+                                       Spacing="10">
+                                <TextBlock Text="⏳" FontSize="16"/>
+                                <TextBlock Text="Checking stock..." FontStyle="Italic"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Stock Items List -->
+                    <Border Classes="section-card">
+                        <StackPanel>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0" Classes="section-title" Text="Stock Items"/>
+                                <Button Grid.Column="1" 
+                                       Classes="secondary-button"
+                                       Content="🔄 Refresh"
+                                       Command="{Binding RefreshCommand}"
+                                       VerticalAlignment="Top"/>
+                            </Grid>
+                            
+                            <ScrollViewer Height="400" VerticalScrollBarVisibility="Auto">
+                                <ListBox ItemsSource="{Binding StockItems}"
+                                        SelectedItem="{Binding SelectedStockItem}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid ColumnDefinitions="*,Auto,Auto">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="{Binding Part.Name}" 
+                                                              FontWeight="SemiBold"/>
+                                                    <TextBlock Text="{Binding Part.Code}" 
+                                                              FontSize="12" 
+                                                              Foreground="#666"/>
+                                                    <TextBlock Text="{Binding Part.FormattedPrice}" 
+                                                              FontSize="12" 
+                                                              Foreground="#666"/>
+                                                </StackPanel>
+                                                
+                                                <StackPanel Grid.Column="1" 
+                                                           VerticalAlignment="Center" 
+                                                           Margin="10,0">
+                                                    <TextBlock Text="{Binding AvailableQuantity}" 
+                                                              FontWeight="Bold" 
+                                                              HorizontalAlignment="Center"/>
+                                                    <TextBlock Text="available" 
+                                                              FontSize="10" 
+                                                              HorizontalAlignment="Center"
+                                                              Foreground="#666"/>
+                                                </StackPanel>
+                                                
+                                                <TextBlock Grid.Column="2"
+                                                          Classes="stock-indicator"
+                                                          Classes.good="{Binding IsInStock}"
+                                                          Classes.low="{Binding IsLowStock}"
+                                                          Classes.empty="{Binding IsOutOfStock}"
+                                                          Text="{Binding StockStatusText}"
+                                                          VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </ScrollViewer>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Actions -->
+                    <Border Classes="section-card">
+                        <StackPanel>
+                            <TextBlock Classes="section-title" Text="Actions"/>
+                              <Grid ColumnDefinitions="*,*" Margin="0,0,10,0">
+                                <Button Grid.Column="0"
+                                       Classes="secondary-button"
+                                       Content="📋 Export Report"
+                                       HorizontalAlignment="Stretch"/>
+                                
+                                <Button Grid.Column="1"
+                                       Classes="secondary-button"
+                                       Content="📧 Alert Suppliers"
+                                       HorizontalAlignment="Stretch"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <!-- Message for non-admin users -->
+        <Border IsVisible="{Binding !IsAdmin}" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center"
+                Background="#FFFDE7" 
+                BorderBrush="#FFC107" 
+                BorderThickness="1" 
+                CornerRadius="8" 
+                Padding="50">
+            <StackPanel Spacing="15" HorizontalAlignment="Center">
+                <TextBlock Text="🔒 Access Denied" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Foreground="#FF6F00"/>
+                <TextBlock Text="This section is available for administrators only." FontSize="16" HorizontalAlignment="Center"/>
+                <TextBlock Text="Please login with admin credentials to check stock." FontSize="14" Foreground="Gray" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+            </StackPanel>
+        </Border>
+    </Panel>
 </UserControl>

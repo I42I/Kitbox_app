@@ -11,7 +11,7 @@ namespace KitBoxDesigner.ValueConverters
         {
             if (value is bool isAdminLoggedIn)
             {
-                return isAdminLoggedIn ? "Logout Admin" : "Login as Admin";
+                return isAdminLoggedIn ? "Logout Admin" : "Login Admin";
             }
             return "Login as Admin";
         }

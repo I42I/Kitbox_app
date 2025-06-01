@@ -3,12 +3,17 @@
         xmlns:vm="using:KitBoxDesigner.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:converters="using:KitBoxDesigner.ValueConverters"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
         x:Class="KitBoxDesigner.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="KitBox Designer - Modular Cabinet System"
         MinWidth="1000" MinHeight="700">
+
+    <Window.Resources>
+        <converters:BooleanToLoginLogoutConverter x:Key="LoginLogoutConverter"/>
+    </Window.Resources>
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>
@@ -67,6 +72,13 @@
                               Foreground="White" 
                               VerticalAlignment="Center"
                               FontSize="12"/>
+                    <Button Content="{Binding IsAdminLoggedIn, Converter={StaticResource LoginLogoutConverter}}"
+                            Command="{Binding ToggleLoginCommand}"
+                            Classes="nav-button" 
+                            Foreground="White" 
+                            Background="#FF6F00" 
+                            Margin="0,0,10,0"
+                            Padding="15,8"/>
                 </StackPanel>
             </Grid>
         </Border>

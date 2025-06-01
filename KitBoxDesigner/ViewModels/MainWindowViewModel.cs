@@ -1,214 +1,158 @@
-﻿using System;
+using System;
 using System.Windows.Input;
-using ReactiveUI;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using KitBoxDesigner.Services;
+using KitBoxDesigner.Models;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace KitBoxDesigner.ViewModels;
 
 /// <summary>
 /// Main window view model managing navigation and global application state
 /// </summary>
-public class MainWindowViewModel : ViewModelBase
-{private readonly IPartService _partService;
-    private readonly IStockService _stockService;
-    private readonly IPriceCalculatorService _priceCalculatorService;
-    private readonly ConfigurationStorageService _configurationStorageService;
-
-    private ViewModelBase _currentViewModel;
+public partial class MainWindowViewModel : ViewModelBase
+{
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IAuthenticationService _authenticationService;
+    
+    [ObservableProperty]
+    private ViewModelBase? _currentViewModel;
+    
+    [ObservableProperty]
     private string _statusMessage = "Ready";
+      [ObservableProperty]
+    private User? _currentUser;
 
-    // Navigation state
-    private bool _isConfiguratorActive = true;
-    private bool _isPriceCalculatorActive;
-    private bool _isInventoryActive;
-    private bool _isStockCheckerActive;    public MainWindowViewModel(
-        IPartService partService, 
-        IStockService stockService, 
-        IPriceCalculatorService priceCalculatorService,
-        ConfigurationStorageService configurationStorageService)
+    public bool IsAdminLoggedIn => _authenticationService.IsAdmin;    public bool IsConfiguratorActive => CurrentViewModel is ConfiguratorViewModel;
+    public bool IsPriceCalculatorActive => CurrentViewModel is PriceCalculatorViewModel;
+    public bool IsInventoryActive => CurrentViewModel is InventoryViewModel;
+    public bool IsStockCheckerActive => CurrentViewModel is StockCheckerViewModel;    public MainWindowViewModel(IServiceProvider serviceProvider, IAuthenticationService authenticationService)
     {
-        _partService = partService;
-        _stockService = stockService;
-        _priceCalculatorService = priceCalculatorService;
-        _configurationStorageService = configurationStorageService;        // Initialize with configurator view
-        _currentViewModel = new ConfiguratorViewModel(_partService, _stockService, _priceCalculatorService, _configurationStorageService);
+        _serviceProvider = serviceProvider;
+        _authenticationService = authenticationService;
+        
+        _authenticationService.AuthenticationStateChanged += OnAuthenticationStateChanged;
 
-        // Initialize commands
-        ShowConfiguratorCommand = new SimpleCommand(ShowConfigurator);
-        ShowInventoryCommand = new SimpleCommand(ShowInventory);
-        ShowStockCheckerCommand = new SimpleCommand(ShowStockChecker);
-        ShowPriceCalculatorCommand = new SimpleCommand(ShowPriceCalculator);
-    }/// <summary>
-    /// Current active view model
-    /// </summary>
-    public ViewModelBase CurrentViewModel
-    {
-        get => _currentViewModel;
-        set => this.SafeRaiseAndSetIfChanged(ref _currentViewModel, value);
+        // Set Cabinet Designer as the default page for all users
+        ShowConfigurator();
     }
 
-    /// <summary>
-    /// Status message displayed in the UI
-    /// </summary>
-    public string StatusMessage
+    private void OnAuthenticationStateChanged()
     {
-        get => _statusMessage;
-        set => this.SafeRaiseAndSetIfChanged(ref _statusMessage, value);
+        // Ensure UI updates are on the main thread
+        RunOnUIThread(() => {
+            OnPropertyChanged(nameof(IsAdminLoggedIn));
+            UpdateViewBasedOnAuthState();
+            UpdateNavigationButtonStates();
+            
+            // Update CanExecute for admin commands
+            ShowInventoryCommand.NotifyCanExecuteChanged();
+            ShowStockCheckerCommand.NotifyCanExecuteChanged();
+            ShowOrderHistoryCommand.NotifyCanExecuteChanged();
+        });
+    }    private void UpdateViewBasedOnAuthState()
+    {
+        if (!_authenticationService.IsAdmin)
+        {
+            // If not admin and current view is admin-only, redirect to configurator
+            if (CurrentViewModel is InventoryViewModel || 
+                CurrentViewModel is StockCheckerViewModel)
+            {
+                ShowConfigurator();
+                StatusMessage = "Admin access required for this feature. Switched to Cabinet Designer.";
+            }
+        }
+        // If admin is logged in, allow them to stay on their current view
+        // No need to force navigation - they can use the navigation buttons
     }
 
-    // Navigation state properties
-    public bool IsConfiguratorActive
-    {
-        get => _isConfiguratorActive;
-        set => this.SafeRaiseAndSetIfChanged(ref _isConfiguratorActive, value);
-    }
-
-    public bool IsPriceCalculatorActive
-    {
-        get => _isPriceCalculatorActive;
-        set => this.SafeRaiseAndSetIfChanged(ref _isPriceCalculatorActive, value);
-    }
-
-    public bool IsInventoryActive
-    {
-        get => _isInventoryActive;
-        set => this.SafeRaiseAndSetIfChanged(ref _isInventoryActive, value);
-    }
-
-    public bool IsStockCheckerActive
-    {
-        get => _isStockCheckerActive;
-        set => this.SafeRaiseAndSetIfChanged(ref _isStockCheckerActive, value);
-    }    // Navigation Commands
-    public ICommand ShowConfiguratorCommand { get; }
-    public ICommand ShowInventoryCommand { get; }
-    public ICommand ShowStockCheckerCommand { get; }
-    public ICommand ShowPriceCalculatorCommand { get; }/// <summary>
-    /// Navigate to cabinet configurator
-    /// </summary>
+    [RelayCommand]
     private void ShowConfigurator()
     {
-        try
-        {
-            // Make sure we're on the UI thread for all UI operations
-            EnsureUIThread(() => {
-                CurrentViewModel = new ConfiguratorViewModel(_partService, _stockService, _priceCalculatorService, _configurationStorageService);
-                UpdateNavigationState(configurator: true);
-                StatusMessage = "Cabinet Configurator - Design your custom cabinet";
-            });
-        }
-        catch (Exception ex)
-        {
-            HandleNavigationError("cabinet configurator", ex);
-        }
+        CurrentViewModel = _serviceProvider.GetRequiredService<ConfiguratorViewModel>();
+        StatusMessage = "Cabinet Configurator";
+        UpdateNavigationButtonStates();
     }
 
-    /// <summary>
-    /// Navigate to inventory management
-    /// </summary>
-    private void ShowInventory()
-    {
-        try
-        {
-            EnsureUIThread(() => {
-                CurrentViewModel = new InventoryViewModel(_partService, _stockService);
-                UpdateNavigationState(inventory: true);
-                StatusMessage = "Inventory Management - Manage parts and stock levels";
-            });
-        }
-        catch (Exception ex)
-        {
-            HandleNavigationError("inventory", ex);
-        }
-    }
-
-    /// <summary>
-    /// Navigate to stock checker
-    /// </summary>
-    private void ShowStockChecker()
-    {
-        try
-        {
-            EnsureUIThread(() => {
-                CurrentViewModel = new StockCheckerViewModel(_stockService, _partService);
-                UpdateNavigationState(stockChecker: true);
-                StatusMessage = "Stock Checker - Check availability and stock levels";
-            });
-        }
-        catch (Exception ex)
-        {
-            HandleNavigationError("stock checker", ex);
-        }
-    }
-
-    /// <summary>
-    /// Navigate to price calculator
-    /// </summary>
+    [RelayCommand]
     private void ShowPriceCalculator()
     {
-        try
-        {
-            EnsureUIThread(() => {
-                CurrentViewModel = new PriceCalculatorViewModel(_priceCalculatorService, _partService);
-                UpdateNavigationState(priceCalculator: true);
-                StatusMessage = "Price Calculator - Calculate cabinet costs and generate quotes";
-            });
-        }
-        catch (Exception ex)
-        {
-            HandleNavigationError("price calculator", ex);
-        }
-    }    /// <summary>
-    /// Update navigation state to highlight active section
-    /// </summary>
-    private void UpdateNavigationState(
-        bool configurator = false, 
-        bool inventory = false, 
-        bool stockChecker = false, 
-        bool priceCalculator = false)
+        CurrentViewModel = _serviceProvider.GetRequiredService<PriceCalculatorViewModel>();
+        StatusMessage = "Price Calculator";
+        UpdateNavigationButtonStates();
+    }    [RelayCommand(CanExecute = nameof(CanExecuteAdminCommands))]
+    private void ShowInventory()
     {
-        IsConfiguratorActive = configurator;
-        IsInventoryActive = inventory;
-        IsStockCheckerActive = stockChecker;        
-        IsPriceCalculatorActive = priceCalculator;
-    }
-      /// <summary>
-    /// Ensures that the provided action is executed on the UI thread
-    /// </summary>
-    private void EnsureUIThread(Action action)
-    {
-        if (Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
+        if (_authenticationService.IsAdmin)
         {
-            // We're already on the UI thread
-            action();
+            CurrentViewModel = _serviceProvider.GetRequiredService<InventoryViewModel>();
+            StatusMessage = "Inventory Management";
         }
         else
         {
-            // We're not on the UI thread, dispatch to it
-            Avalonia.Threading.Dispatcher.UIThread.Post(action);
+            StatusMessage = "Please login as admin to access inventory.";
+        }
+        UpdateNavigationButtonStates();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanExecuteAdminCommands))]
+    private void ShowStockChecker()
+    {
+        if (_authenticationService.IsAdmin)
+        {
+            CurrentViewModel = _serviceProvider.GetRequiredService<StockCheckerViewModel>();
+            StatusMessage = "Stock Checker";
+        }
+        else
+        {
+            StatusMessage = "Please login as admin to access stock checker.";
+        }
+        UpdateNavigationButtonStates();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanExecuteAdminCommands))]
+    private void ShowOrderHistory()
+    {
+        if (_authenticationService.IsAdmin) 
+        {
+            // For now, use a placeholder until OrderViewModel is properly implemented
+            StatusMessage = "Order History - Coming Soon";
+        }
+        else
+        {
+            StatusMessage = "Please login as admin to access order history.";
+        }
+        UpdateNavigationButtonStates();
+    }    [RelayCommand]
+    private void ToggleLogin()
+    {
+        if (_authenticationService.IsAdmin)
+        {
+            // Logout
+            _authenticationService.Logout();
+            CurrentUser = null; 
+            StatusMessage = "Logged out. Admin features are now restricted.";
+            // Stay on current view but update permissions
+        }
+        else
+        {
+            // Login as admin
+            _authenticationService.LoginAsAdmin();
+            StatusMessage = "Welcome, Admin! You now have access to all features.";
         }
     }
-    
-    /// <summary>
-    /// Handle navigation errors
-    /// </summary>
-    private void HandleNavigationError(string destination, Exception ex)
+
+    private bool CanExecuteAdminCommands() => _authenticationService.IsAdmin;    private void UpdateNavigationButtonStates()
     {
-        EnsureUIThread(() => 
-        {
-            // Log the error
-            Console.WriteLine($"Error navigating to {destination}: {ex.Message}");
-            Console.WriteLine($"Stack trace: {ex.StackTrace}");
-            
-            // Update UI to show error
-            StatusMessage = $"Error loading {destination}. Please try again.";
-            
-            // Keep the current view model instead of crashing
-            // If there's no current view model, create a simple one
-            if (CurrentViewModel == null)
-            {
-                ShowConfigurator(); // Default to configurator
-            }
-        });
+        OnPropertyChanged(nameof(IsConfiguratorActive));
+        OnPropertyChanged(nameof(IsPriceCalculatorActive));
+        OnPropertyChanged(nameof(IsInventoryActive));
+        OnPropertyChanged(nameof(IsStockCheckerActive));
+    }
+
+    public void Dispose()
+    {
+        _authenticationService.AuthenticationStateChanged -= OnAuthenticationStateChanged;
     }
 }

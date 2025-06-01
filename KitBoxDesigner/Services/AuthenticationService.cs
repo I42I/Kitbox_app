@@ -1,6 +1,6 @@
-// New file: KitBoxDesigner/Services/AuthenticationService.cs
 using System;
-using ReactiveUI;
+using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace KitBoxDesigner.Services
 {
@@ -12,27 +12,36 @@ namespace KitBoxDesigner.Services
         event Action? AuthenticationStateChanged;
     }
 
-    public class AuthenticationService : ReactiveObject, IAuthenticationService
+    public partial class AuthenticationService : ObservableObject, IAuthenticationService
     {
+        [ObservableProperty]
         private bool _isAdmin;
-        public bool IsAdmin
-        {
-            get => _isAdmin;
-            private set => this.RaiseAndSetIfChanged(ref _isAdmin, value);
-        }
 
         public event Action? AuthenticationStateChanged;
 
         public void LoginAsAdmin()
         {
             IsAdmin = true;
-            AuthenticationStateChanged?.Invoke();
+            RaiseAuthenticationStateChanged();
         }
 
         public void Logout()
         {
             IsAdmin = false;
-            AuthenticationStateChanged?.Invoke();
+            RaiseAuthenticationStateChanged();
+        }
+
+        private void RaiseAuthenticationStateChanged()
+        {
+            // Ensure the event is raised on the UI thread
+            if (Dispatcher.UIThread.CheckAccess())
+            {
+                AuthenticationStateChanged?.Invoke();
+            }
+            else
+            {
+                Dispatcher.UIThread.Post(() => AuthenticationStateChanged?.Invoke());
+            }
         }
     }
 }

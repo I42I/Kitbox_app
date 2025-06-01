@@ -10,7 +10,7 @@ using KitBoxDesigner.Models;
 
 namespace KitBoxDesigner.Services
 {
-    public class KitboxApiService : IStockService, IPartService
+    public class KitboxApiService : IKitboxApiService // Changed to implement IKitboxApiService
     {
         private readonly HttpClient _httpClient;
         private const string BaseUrl = "https://kitbox.msrl.be";
@@ -22,28 +22,36 @@ namespace KitBoxDesigner.Services
             _httpClient.DefaultRequestHeaders.Accept.Clear();
             _httpClient.DefaultRequestHeaders.Accept.Add(
                 new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-        }
-
-        private async Task<List<ApiStockDto>?> GetApiStockDtosAsync()
+        }        private async Task<List<ApiStockDto>?> GetApiStockDtosAsync()
         {
             try
             {
-                var response = await _httpClient.GetAsync("/api/stocks");
+                HttpResponseMessage response = await _httpClient.GetAsync("/api/stocks");
                 response.EnsureSuccessStatusCode();
+                string json = await response.Content.ReadAsStringAsync();
                 
-                var json = await response.Content.ReadAsStringAsync();
-                // Add null check for json before deserializing
                 if (string.IsNullOrEmpty(json))
                 {
-                    Console.WriteLine("API returned empty or null JSON string for stocks.");
-                    return new List<ApiStockDto>();
+                    Console.WriteLine("API response is null or empty.");
+                    return new List<ApiStockDto>(); // Return empty list or handle as error
                 }
+                
                 return JsonSerializer.Deserialize<List<ApiStockDto>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            catch (HttpRequestException httpEx)
+            {
+                Console.WriteLine($"HTTP request error: {httpEx.Message}");
+                return new List<ApiStockDto>();
+            }
+            catch (JsonException jsonEx)
+            {
+                Console.WriteLine($"JSON deserialization error: {jsonEx.Message}");
+                return new List<ApiStockDto>();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error fetching or deserializing stock DTOs: {ex.Message}");
-                return new List<ApiStockDto>(); // Return empty list on error
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+                return new List<ApiStockDto>();
             }
         }
 
@@ -398,113 +406,49 @@ namespace KitBoxDesigner.Services
             return null; // No part found matching the specification
         }
 
-        private (int? Height, int? Width, int? Depth) ParseDimensionsString(string dimString)
+        private (int? Height, int? Width, int? Depth) ParseDimensionsString(string? dimString) // Added nullable for dimString
         {
             if (string.IsNullOrWhiteSpace(dimString))
-                return (null, null, null);
-
-            // Normalize: remove "cm", spaces, and use 'x' as a consistent separator.
-            dimString = dimString.ToLowerInvariant().Replace("cm", "").Replace(" ", "");
-            
-            // Try to match patterns like HxWxD, HxW, WxD, or just H/W/D
-            // This is a simplified parser. A more robust one would be needed for varied formats.
-            // Example formats: "52x32x30", "32x60", "60", "L:60 H:30 P:20"
-
-            int? h = null, w = null, d = null;
-            
-            var parts = dimString.Split(new[] { 'x', '*', '-', '/' }, StringSplitOptions.RemoveEmptyEntries)
-                               .Select(pVal => int.TryParse(pVal.Trim(), out int val) ? (int?)val : null)
-                               .Where(pVal => pVal.HasValue)
-                               .Select(pVal => pVal.Value)
-                               .ToList();
-
-            // This heuristic assumes order or context based on PartCategory, which is not available here directly.
-            // A common convention is H x W x D or W x D x H or just H for vertical items.
-            // For simplicity, if 3 values, assume HxWxD or WxDxH (often ambiguous without context)
-            // If 2 values, often HxW or WxD
-            // If 1 value, often H (for vertical items like battens) or W or D
-            
-            // This is a very basic interpretation and likely needs to be much smarter,
-            // possibly by knowing the typical dimension order for certain part categories
-            // or by having more structured dimension data from the API.
-
-            if (parts.Count == 3)
             {
-                // Assuming HxWxD for now, or WxDxH. This is ambiguous.
-                // Let's assume it could be H, W, D in order if 3 parts.
-                // Or it could be that the API provides them in a specific order.
-                // For now, let's try to be flexible or make an assumption.
-                // If the reference often contains "hauteur", "largeur", "profondeur", that could guide.
-                // Without more info, this is a guess.
-                // Let's assume for now: if 3 parts, it's H, W, D or W, D, H.
-                // If the spec has H, W, D, we need to find a part that matches all three.
-                // The order in part.Dimensions might not be fixed.
-                
-                // A more robust way: if the API could return dimensions as structured data:
-                // { "height": 50, "width": 30, "depth": 20 }
-
-                // Simplified: if 3 numbers, assign to H, W, D if they are not already assigned.
-                // This won't work well if the order is not guaranteed or if some are zero.
-                // For now, we'll assume if 3 numbers are present, they correspond to H, W, D in some order
-                // and the matching logic in FindPartBySpecificationAsync will check spec.H against parsed H, etc.
-                // This means the ParseDimensionsString should try to identify which number is H, W, D.
-
-                // Let's try a regex approach for "HxWxD" or "H x W x D"
-                var regex3D = new Regex(@"(\d+)\s*x\s*(\d+)\s*x\s*(\d+)"); // e.g. 50x30x20
-                var match3D = regex3D.Match(dimString);
-                if (match3D.Success)
-                {
-                    h = int.Parse(match3D.Groups[1].Value);
-                    w = int.Parse(match3D.Groups[2].Value);
-                    d = int.Parse(match3D.Groups[3].Value);
-                    return (h, w, d);
-                }
-
-                // Regex for "HxW" or "H x W"
-                var regex2D_HW = new Regex(@"(\d+)\s*x\s*(\d+)"); // e.g. 50x30
-                var match2D_HW = regex2D_HW.Match(dimString);
-                if (match2D_HW.Success && parts.Count == 2)
-                {
-                    // Ambiguous: could be HxW or WxD.
-                    // If category is Panel, it's often HxW. If crossbar, WxD or HxL.
-                    // For now, assume H then W if two parts.
-                    h = int.Parse(match2D_HW.Groups[1].Value);
-                    w = int.Parse(match2D_HW.Groups[2].Value);
-                    return (h, w, null);
-                }
-                
-                // Regex for single dimension
-                var regex1D = new Regex(@"^(\d+)$"); // e.g. 50
-                var match1D = regex1D.Match(dimString);
-                if (match1D.Success && parts.Count == 1)
-                {
-                    // Highly ambiguous. Could be H, W, or D.
-                    // If it's a Tasseau (VerticalBatten), it's likely Height.
-                    // If it's a Traverse (Crossbar), it's likely a Length (Width or Depth of locker).
-                    // For now, we can't reliably assign it without category context here.
-                    // The calling function FindPartBySpecificationAsync will have to be smart.
-                    // Let's return it as 'h' for now if only one dimension.
-                    h = int.Parse(match1D.Groups[1].Value);
-                    return (h, null, null);
-                }
-                
-                // Fallback: if parts list has values, assign them in order H, W, D
-                // This is a weak fallback.
-                if (parts.Count > 0) h = parts[0];
-                if (parts.Count > 1) w = parts[1];
-                if (parts.Count > 2) d = parts[2];
-                
-                return (h,w,d);
+                return (null, null, null);
             }
-            // If only one or two numbers, it's harder.
-            // Example: "TASSEAU 52 CM" -> Height is 52. "TRAVERSE 32 CM" -> Length is 32.
-            // The part.Reference often gives clues.
-            // For now, this parser is very basic.
-            if (parts.Count == 1) h = parts[0]; // Assume height if only one dimension
-            if (parts.Count == 2) { h = parts[0]; w = parts[1]; } // Assume H, W
-            if (parts.Count >= 3) { h = parts[0]; w = parts[1]; d = parts[2]; } // Assume H, W, D
 
-            return (h, w, d);
+            // Regex to capture various dimension formats like "HxLxP", "H x L x P", "H L P", "H x L", "H L", "H"
+            // It tries to be flexible with separators (x, space) and case.
+            var match3D = Regex.Match(dimString, @"^(\d+)\s*[xX\s]?\s*(\d+)\s*[xX\s]?\s*(\d+)$");
+            var match2D_HW = Regex.Match(dimString, @"^(\d+)\s*[xX\s]?\s*(\d+)$"); // Height x Width or Height x Depth
+            var match1D = Regex.Match(dimString, @"^(\d+)$"); // Single dimension (Height)
+
+            int? height = null, width = null, depth = null;
+
+            if (match3D.Success)
+            {
+                height = int.Parse(match3D.Groups[1].Value);
+                width = int.Parse(match3D.Groups[2].Value);
+                depth = int.Parse(match3D.Groups[3].Value);
+            }
+            else if (match2D_HW.Success)
+            {
+                height = int.Parse(match2D_HW.Groups[1].Value);
+                width = int.Parse(match2D_HW.Groups[2].Value);
+                // Assuming the second dimension is Width if only two are provided.
+                // Depth remains null.
+            }
+            else if (match1D.Success)
+            {
+                height = int.Parse(match1D.Groups[1].Value);
+                // Width and Depth remain null.
+            }
+            else
+            {
+                // Fallback or attempt to split by common delimiters if regex fails
+                var parts = dimString.Split(new[] { 'x', 'X', ' ', '*', '-' }, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length > 0 && int.TryParse(parts[0], out int h)) height = h;
+                if (parts.Length > 1 && int.TryParse(parts[1], out int w)) width = w;
+                if (parts.Length > 2 && int.TryParse(parts[2], out int d)) depth = d;
+            }
+
+            return (height, width, depth);
         }
 
         private StockItem ConvertToStockItem(ApiStockDto apiStock)
@@ -623,26 +567,25 @@ namespace KitBoxDesigner.Services
         {
             if (!string.IsNullOrEmpty(code))
             {
-                if (code.StartsWith("TAS", StringComparison.OrdinalIgnoreCase)) return PartCategory.VerticalBatten;
-                if (code.StartsWith("TRG", StringComparison.OrdinalIgnoreCase)) return PartCategory.CrossbarLeft; 
-                if (code.StartsWith("TRD", StringComparison.OrdinalIgnoreCase)) return PartCategory.CrossbarRight; 
-                if (code.StartsWith("TRR", StringComparison.OrdinalIgnoreCase)) return PartCategory.CrossbarBack;
-                if (code.StartsWith("TRF", StringComparison.OrdinalIgnoreCase)) return PartCategory.CrossbarFront;
-                if (code.StartsWith("PAR", StringComparison.OrdinalIgnoreCase)) return PartCategory.PanelBack;
-                if (code.StartsWith("PAL", StringComparison.OrdinalIgnoreCase)) return PartCategory.PanelVertical; 
-                if (code.StartsWith("PAH", StringComparison.OrdinalIgnoreCase)) return PartCategory.PanelHorizontal;
-                if (code.StartsWith("POR", StringComparison.OrdinalIgnoreCase)) return PartCategory.Door;
-                if (code.StartsWith("COR", StringComparison.OrdinalIgnoreCase)) return PartCategory.AngleIron;
-                if (code.StartsWith("COUPEL", StringComparison.OrdinalIgnoreCase)) return PartCategory.Coupelles;
-                // Add other categories based on your catalogue/codes
+                if (code.StartsWith("TAS", StringComparison.OrdinalIgnoreCase)) return PartCategory.VerticalBatten; // TASSEAU
+                if (code.StartsWith("TRG", StringComparison.OrdinalIgnoreCase)) return PartCategory.CrossbarSide; // TRAVERSE GAUCHE
+                if (code.StartsWith("TRD", StringComparison.OrdinalIgnoreCase)) return PartCategory.CrossbarSide; // TRAVERSE DROITE
+                if (code.StartsWith("TRR", StringComparison.OrdinalIgnoreCase)) return PartCategory.CrossbarBack; // TRAVERSE ARRIERE
+                if (code.StartsWith("TRF", StringComparison.OrdinalIgnoreCase)) return PartCategory.CrossbarFront; // TRAVERSE AVANT
+                if (code.StartsWith("PAR", StringComparison.OrdinalIgnoreCase)) return PartCategory.PanelBack; // PANNEAU ARRIERE
+                if (code.StartsWith("PAL", StringComparison.OrdinalIgnoreCase)) return PartCategory.PanelSide; // PANNEAU LATERAL
+                if (code.StartsWith("PAH", StringComparison.OrdinalIgnoreCase)) return PartCategory.PanelHorizontal; // PANNEAU HORIZONTAL
+                if (code.StartsWith("POR", StringComparison.OrdinalIgnoreCase)) return PartCategory.Door; // PORTE
+                if (code.StartsWith("COR", StringComparison.OrdinalIgnoreCase)) return PartCategory.AngleIron; // CORNIERE
+                if (code.StartsWith("COUPEL", StringComparison.OrdinalIgnoreCase)) return PartCategory.CupHandle; // COUPELLES
             }
             
             if (!string.IsNullOrEmpty(reference))
             {
-                var refLower = reference.ToLowerInvariant();
+                string refLower = reference.ToLowerInvariant();
                 if (refLower.Contains("vertical batten") || refLower.Contains("tasseau vertic")) return PartCategory.VerticalBatten;
                 if (refLower.Contains("panel") && (refLower.Contains("horizontal") || refLower.Contains("top") || refLower.Contains("bottom") || refLower.Contains("fond") || refLower.Contains("dessus"))) return PartCategory.PanelHorizontal;
-                if (refLower.Contains("panel") && (refLower.Contains("vertical") || refLower.Contains("side") || refLower.Contains("latéral") || refLower.Contains("côté"))) return PartCategory.PanelVertical;
+                if (refLower.Contains("panel") && (refLower.Contains("vertical") || refLower.Contains("side") || refLower.Contains("latéral") || refLower.Contains("côté"))) return PartCategory.PanelSide;
                 if (refLower.Contains("panel") && (refLower.Contains("back") || refLower.Contains("arrière"))) return PartCategory.PanelBack;
                 if (refLower.Contains("door") || refLower.Contains("porte")) return PartCategory.Door;
                 if (refLower.Contains("crossbar") && (refLower.Contains("left") || refLower.Contains("gauche"))) return PartCategory.CrossbarLeft;

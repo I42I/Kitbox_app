@@ -63,6 +63,7 @@ public partial class App : Application
         services.AddSingleton<KitboxApiService>();
         services.AddSingleton<IPartService>(provider => provider.GetRequiredService<KitboxApiService>());
         services.AddSingleton<IStockService>(provider => provider.GetRequiredService<KitboxApiService>());
+        services.AddSingleton<IKitboxApiService>(provider => provider.GetRequiredService<KitboxApiService>()); // Added this line
         
         // Register AuthenticationService
         services.AddSingleton<IAuthenticationService, AuthenticationService>();
@@ -77,6 +78,7 @@ public partial class App : Application
         services.AddTransient<InventoryViewModel>();
         services.AddTransient<StockCheckerViewModel>();
         services.AddTransient<PriceCalculatorViewModel>();
+        services.AddTransient<LoginViewModel>();
     }
 
     private void Desktop_ShutdownRequested(object? sender, ShutdownRequestedEventArgs e)

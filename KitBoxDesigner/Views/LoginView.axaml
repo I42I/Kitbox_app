@@ -1,0 +1,15 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:KitBoxDesigner.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="KitBoxDesigner.Views.LoginView"
+             x:DataType="vm:LoginViewModel">
+  <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
+    <TextBlock Text="KitBox System" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+    <TextBlock Text="Please Login to Access Business Features" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+    <Button Content="Login Admin" Command="{Binding LoginAsAdminCommand}" Width="250" Height="50" HorizontalAlignment="Center"/>
+    <TextBlock Text="(No password required for this demo)" FontSize="12" Foreground="Gray" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+  </StackPanel>
+</UserControl>

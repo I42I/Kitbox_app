@@ -16,6 +16,7 @@ namespace KitBoxDesigner.ViewModels
     {
         private readonly IPartService _partService;
         private readonly IStockService _stockService;
+        private readonly IAuthenticationService _authenticationService;
 
         private ObservableCollection<StockItemViewModel> _stockItems;
         private ObservableCollection<StockItemViewModel> _filteredStockItems;
@@ -33,10 +34,16 @@ namespace KitBoxDesigner.ViewModels
         public ICommand RemoveStockCommand { get; }
         public ICommand ExportInventoryCommand { get; }
         public ICommand EditStockCommand { get; }
-        public ICommand ViewDetailsCommand { get; }        public InventoryViewModel(IPartService partService, IStockService stockService)
+        public ICommand ViewDetailsCommand { get; }
+        public bool IsAdmin => _authenticationService.IsAdmin;
+
+        public InventoryViewModel(IPartService partService, IStockService stockService, IAuthenticationService authenticationService)
         {
             _partService = partService;
             _stockService = stockService;
+            _authenticationService = authenticationService;
+            _authenticationService.AuthenticationStateChanged += () => OnPropertyChanged(nameof(IsAdmin));
+
 
             _stockItems = new ObservableCollection<StockItemViewModel>();
             _filteredStockItems = new ObservableCollection<StockItemViewModel>();
@@ -365,9 +372,9 @@ namespace KitBoxDesigner.ViewModels
             set 
             { 
                 _stockItem.CurrentStock = value;
-                this.RaisePropertyChanged();
-                this.RaisePropertyChanged(nameof(TotalValue));
-                this.RaisePropertyChanged(nameof(StockLevelPercentage));
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(TotalValue));
+                OnPropertyChanged(nameof(StockLevelPercentage));
             }
         }
 
