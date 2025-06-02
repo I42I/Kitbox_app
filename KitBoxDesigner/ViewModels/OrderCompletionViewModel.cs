@@ -89,7 +89,7 @@ namespace KitBoxDesigner.ViewModels
             try
             {
                 IsProcessing = true;
-                StatusMessage = "Calcul du prix en cours...";
+                StatusMessage = "Calculating price...";
                 
                 var breakdown = await _priceCalculatorService.CalculatePriceAsync(Configuration);
                 PriceBreakdown = breakdown;
@@ -97,16 +97,15 @@ namespace KitBoxDesigner.ViewModels
                 // Set suggested deposit amount
                 CustomerInfo.DepositAmount = SuggestedDeposit;
                 
-                StatusMessage = "Prix calculé avec succès";
+                StatusMessage = "Price calculated successfully";
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Erreur lors du calcul: {ex.Message}";
+                StatusMessage = $"Error during calculation: {ex.Message}";
             }
             finally
             {
-                IsProcessing = false;
-            }
+                IsProcessing = false;            }
         }
 
         private async Task CompleteOrderAsync()
@@ -114,36 +113,36 @@ namespace KitBoxDesigner.ViewModels
             try
             {
                 IsProcessing = true;
-                StatusMessage = "Finalisation de la commande...";
+                StatusMessage = "Finalizing order...";
                 
                 // Validate customer info
                 if (string.IsNullOrWhiteSpace(CustomerInfo.Name))
                 {
-                    StatusMessage = "Le nom du client est requis";
+                    StatusMessage = "Customer name is required";
                     return;
                 }
                 
                 if (string.IsNullOrWhiteSpace(CustomerInfo.Email))
                 {
-                    StatusMessage = "L'email est requis";
+                    StatusMessage = "Email is required";
                     return;
                 }
                 
                 if (string.IsNullOrWhiteSpace(CustomerInfo.Phone))
                 {
-                    StatusMessage = "Le numéro de téléphone est requis";
+                    StatusMessage = "Phone number is required";
                     return;
                 }
                 
                 if (string.IsNullOrWhiteSpace(CustomerInfo.Address))
                 {
-                    StatusMessage = "L'adresse est requise";
+                    StatusMessage = "Address is required";
                     return;
                 }
 
                 if (CustomerInfo.DepositAmount < 0)
                 {
-                    StatusMessage = "Le montant du dépôt doit être positif";
+                    StatusMessage = "Deposit amount must be positive";
                     return;
                 }
 
@@ -155,7 +154,7 @@ namespace KitBoxDesigner.ViewModels
                     CustomerInfo.Phone,
                     CustomerInfo.Address);
 
-                StatusMessage = $"Commande #{orderId} créée avec succès!";
+                StatusMessage = $"Order #{orderId} created successfully!";
                 IsCompleted = true;
 
                 // Raise event for navigation
@@ -169,7 +168,7 @@ namespace KitBoxDesigner.ViewModels
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Erreur lors de la finalisation: {ex.Message}";
+                StatusMessage = $"Error during finalization: {ex.Message}";
             }
             finally
             {

@@ -12,18 +12,17 @@
     </Design.DataContext>
 
     <ScrollViewer>
-        <StackPanel Margin="30" Spacing="25">
-            <!-- Header -->
+        <StackPanel Margin="30" Spacing="25">            <!-- Header -->
             <Border Background="#f8f9fa" 
                     CornerRadius="8" 
                     Padding="20">
                 <StackPanel Spacing="10">
-                    <TextBlock Text="🎉 Finalisation de votre commande"
+                    <TextBlock Text="🎉 Order Completion"
                                FontSize="24"
                                FontWeight="Bold"
                                Foreground="#28a745"
                                HorizontalAlignment="Center"/>
-                    <TextBlock Text="Veuillez remplir vos informations pour finaliser la commande"
+                    <TextBlock Text="Please fill in your information to complete the order"
                                FontSize="14"
                                Foreground="#6c757d"
                                HorizontalAlignment="Center"/>
@@ -35,9 +34,8 @@
                     BorderBrush="#dee2e6"
                     BorderThickness="1"
                     CornerRadius="8"
-                    Padding="20">
-                <StackPanel Spacing="15">
-                    <TextBlock Text="📋 Résumé de votre armoire"
+                    Padding="20">                <StackPanel Spacing="15">
+                    <TextBlock Text="📋 Cabinet Summary"
                                FontSize="18"
                                FontWeight="SemiBold"
                                Foreground="#495057"/>
@@ -53,16 +51,16 @@
                             </TextBlock.Text>
                         </TextBlock>
                         
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Largeur:" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Width:" FontWeight="SemiBold"/>
                         <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Configuration.Width, StringFormat='{}{0} cm'}"/>
                         
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Hauteur:" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Height:" FontWeight="SemiBold"/>
                         <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Configuration.Height, StringFormat='{}{0} cm'}"/>
                         
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Profondeur:" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Depth:" FontWeight="SemiBold"/>
                         <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Configuration.Depth, StringFormat='{}{0} cm'}"/>
-                          <TextBlock Grid.Row="4" Grid.Column="0" Text="Compartiments:" FontWeight="SemiBold"/>
-                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Configuration.Compartments.Count, StringFormat='{}{0} compartiments'}"/>
+                          <TextBlock Grid.Row="4" Grid.Column="0" Text="Compartments:" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Configuration.Compartments.Count, StringFormat='{}{0} compartments'}"/>
                     </Grid>
                 </StackPanel>
             </Border>
@@ -73,21 +71,20 @@
                     BorderThickness="2"
                     CornerRadius="8"
                     Padding="20"
-                    IsVisible="{Binding PriceBreakdown, Converter={x:Static ObjectConverters.IsNotNull}}">
-                <StackPanel Spacing="10">
-                    <TextBlock Text="💰 Prix Total"
+                    IsVisible="{Binding PriceBreakdown, Converter={x:Static ObjectConverters.IsNotNull}}">                <StackPanel Spacing="10">
+                    <TextBlock Text="💰 Total Price"
                                FontSize="18"
                                FontWeight="SemiBold"
                                Foreground="#28a745"/>
                     
                     <Grid ColumnDefinitions="*,Auto">
-                        <TextBlock Grid.Column="0" Text="Prix total:" FontSize="16" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="0" Text="Total price:" FontSize="16" FontWeight="SemiBold"/>
                         <TextBlock Grid.Column="1" Text="{Binding PriceBreakdown.TotalPrice, StringFormat='C'}" 
                                    FontSize="20" FontWeight="Bold" Foreground="#28a745"/>
                     </Grid>
                     
                     <Grid ColumnDefinitions="*,Auto">
-                        <TextBlock Grid.Column="0" Text="Dépôt suggéré (30%):" FontSize="14"/>
+                        <TextBlock Grid.Column="0" Text="Suggested deposit (30%):" FontSize="14"/>
                         <TextBlock Grid.Column="1" Text="{Binding SuggestedDeposit, StringFormat='C'}" 
                                    FontSize="14" Foreground="#007bff"/>
                     </Grid>
@@ -99,23 +96,21 @@
                     BorderBrush="#dee2e6"
                     BorderThickness="1"
                     CornerRadius="8"
-                    Padding="20">
-                <StackPanel Spacing="20">
-                    <TextBlock Text="👤 Informations client"
+                    Padding="20">                <StackPanel Spacing="20">
+                    <TextBlock Text="👤 Customer Information"
                                FontSize="18"
                                FontWeight="SemiBold"
-                               Foreground="#495057"/>                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                               Foreground="#495057"/><Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
                         <Grid.Styles>
                             <Style Selector="Grid > TextBlock">
                                 <Setter Property="Margin" Value="8,8,8,8"/>
                             </Style>
                         </Grid.Styles>
-                        
-                        <!-- Name -->
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Nom complet *" FontWeight="SemiBold"/>
+                          <!-- Name -->
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Full Name *" FontWeight="SemiBold"/>
                         <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
                                  Text="{Binding CustomerInfo.Name}"
-                                 Watermark="Entrez votre nom complet"
+                                 Watermark="Enter your full name"
                                  BorderBrush="#ced4da"
                                  Padding="10,8"/>
 
@@ -123,20 +118,20 @@
                         <TextBlock Grid.Row="2" Grid.Column="0" Text="Email *" FontWeight="SemiBold"/>
                         <TextBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
                                  Text="{Binding CustomerInfo.Email}"
-                                 Watermark="exemple@email.com"
+                                 Watermark="example@email.com"
                                  BorderBrush="#ced4da"
                                  Padding="10,8"/>
 
                         <!-- Phone -->
-                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Téléphone *" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Phone *" FontWeight="SemiBold"/>
                         <TextBox Grid.Row="5" Grid.Column="0"
                                  Text="{Binding CustomerInfo.Phone}"
-                                 Watermark="+33 1 23 45 67 89"
+                                 Watermark="+1 234 567 8901"
                                  BorderBrush="#ced4da"
                                  Padding="10,8"/>
 
                         <!-- Deposit Amount -->
-                        <TextBlock Grid.Row="4" Grid.Column="1" Text="Montant du dépôt (€)" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="Deposit Amount (€)" FontWeight="SemiBold"/>
                         <NumericUpDown Grid.Row="5" Grid.Column="1"
                                        Value="{Binding CustomerInfo.DepositAmount}"
                                        Minimum="0"
@@ -146,10 +141,10 @@
                                        Padding="10,8"/>
 
                         <!-- Address -->
-                        <TextBlock Grid.Row="6" Grid.Column="0" Text="Adresse complète *" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Row="6" Grid.Column="0" Text="Full Address *" FontWeight="SemiBold"/>
                         <TextBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2"
                                  Text="{Binding CustomerInfo.Address}"
-                                 Watermark="Adresse, ville, code postal"
+                                 Watermark="Address, city, postal code"
                                  Height="80"
                                  AcceptsReturn="True"
                                  TextWrapping="Wrap"
@@ -164,15 +159,14 @@
                     BorderBrush="#dee2e6"
                     BorderThickness="1"
                     CornerRadius="8"
-                    Padding="20">
-                <StackPanel Spacing="10">
-                    <TextBlock Text="📝 Notes supplémentaires (optionnel)"
+                    Padding="20">                <StackPanel Spacing="10">
+                    <TextBlock Text="📝 Additional Notes (optional)"
                                FontSize="16"
                                FontWeight="SemiBold"
                                Foreground="#495057"/>
                     
                     <TextBox Text="{Binding CustomerInfo.Notes}"
-                             Watermark="Ajoutez des notes ou des instructions spéciales..."
+                             Watermark="Add notes or special instructions..."
                              Height="80"
                              AcceptsReturn="True"
                              TextWrapping="Wrap"
@@ -198,8 +192,7 @@
             <StackPanel Orientation="Horizontal" 
                         HorizontalAlignment="Center" 
                         Spacing="15">
-                
-                <Button Content="❌ Annuler"
+                  <Button Content="❌ Cancel"
                         Command="{Binding CancelCommand}"
                         Background="#dc3545"
                         Foreground="White"
@@ -209,7 +202,7 @@
                         CornerRadius="5"
                         IsEnabled="{Binding !IsProcessing}"/>
 
-                <Button Content="💰 Recalculer le prix"
+                <Button Content="💰 Recalculate Price"
                         Command="{Binding CalculatePriceCommand}"
                         Background="#17a2b8"
                         Foreground="White"
@@ -219,7 +212,7 @@
                         CornerRadius="5"
                         IsEnabled="{Binding !IsProcessing}"/>
 
-                <Button Content="✅ Finaliser la commande"
+                <Button Content="✅ Complete Order"
                         Command="{Binding CompleteOrderCommand}"
                         Background="#28a745"
                         Foreground="White"
@@ -228,14 +221,12 @@
                         FontWeight="SemiBold"
                         CornerRadius="5"
                         IsEnabled="{Binding !IsProcessing}"/>
-            </StackPanel>
-
-            <!-- Loading Indicator -->
+            </StackPanel>            <!-- Loading Indicator -->
             <StackPanel Orientation="Horizontal" 
                         HorizontalAlignment="Center" 
                         Spacing="10"
                         IsVisible="{Binding IsProcessing}">
-                <TextBlock Text="⏳ Traitement en cours..." 
+                <TextBlock Text="⏳ Processing..." 
                            FontSize="14" 
                            Foreground="#6c757d"/>
             </StackPanel>
