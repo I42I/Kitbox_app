@@ -78,8 +78,6 @@ public partial class App : Application
         services.AddTransient<MainWindowViewModel>();
         services.AddTransient<ConfiguratorViewModel>();
         services.AddTransient<InventoryViewModel>();
-        services.AddTransient<StockCheckerViewModel>();
-        services.AddTransient<StockManagementViewModel>();
         services.AddTransient<OrderCompletionViewModel>();
         services.AddTransient<OrderManagementViewModel>();
     }

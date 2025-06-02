@@ -124,7 +124,7 @@
                             IsVisible="{Binding IsAdmin}">
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <TextBlock Text="📦" FontSize="16"/>
-                            <TextBlock Text="Gestion du Stock"/>
+                            <TextBlock Text="Stock Management"/>
                         </StackPanel>
                     </Button>
                     

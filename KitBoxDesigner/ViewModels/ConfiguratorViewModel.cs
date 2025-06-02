@@ -40,7 +40,6 @@ namespace KitBoxDesigner.ViewModels
         private ObservableCollection<double> _availableHeights;
         private ObservableCollection<double> _availableDepths;
         private ObservableCollection<Part> _availableDoors;
-        private ObservableCollection<Part> _availableShelves;
         private ObservableCollection<Part> _availablePanels;        // Commands
         public ICommand NextStepCommand { get; }
         public ICommand PreviousStepCommand { get; }
@@ -78,7 +77,6 @@ namespace KitBoxDesigner.ViewModels
             _availableHeights = new ObservableCollection<double>();
             _availableDepths = new ObservableCollection<double>();
             _availableDoors = new ObservableCollection<Part>();
-            _availableShelves = new ObservableCollection<Part>();
             _availablePanels = new ObservableCollection<Part>();            // Initialize commands - using simple commands without reactive CanExecute to avoid threading issues
             NextStepCommand = new SimpleCommand(NextStep);
             PreviousStepCommand = new SimpleCommand(PreviousStep);
@@ -258,15 +256,6 @@ namespace KitBoxDesigner.ViewModels
         }
 
         /// <summary>
-        /// Available shelves for cabinet configuration
-        /// </summary>
-        public ObservableCollection<Part> AvailableShelves
-        {
-            get => _availableShelves;
-            set => SafeRaiseAndSetIfChanged(ref _availableShelves, value);
-        }
-
-        /// <summary>
         /// Available panels for cabinet configuration
         /// </summary>
         public ObservableCollection<Part> AvailablePanels
@@ -373,10 +362,6 @@ namespace KitBoxDesigner.ViewModels
         public bool IsWhiteSelected => SelectedColor == "White";
         
         /// <summary>
-        /// Cabinet type selection
-        /// </summary>
-        public ObservableCollection<string> AvailableCabinetTypes { get; } = new() { "Standard", "Corner", "Wall" };
-        public string SelectedCabinetType { get; set; } = "Standard";        /// <summary>
         /// Number of compartments
         /// </summary>
         private int _numberOfCompartments = 1;
@@ -486,8 +471,6 @@ namespace KitBoxDesigner.ViewModels
         /// Accessory selections
         /// </summary>
         public bool IncludeDoors { get; set; } = true;
-        public bool IncludeDrawers { get; set; } = false;
-        public bool IncludeShelves { get; set; } = true;
         public bool IncludeLighting { get; set; } = false;
         
         /// <summary>
@@ -498,7 +481,7 @@ namespace KitBoxDesigner.ViewModels
         /// </summary>
         public string FormattedDimensions => $"{WidthText} × {HeightText} × {DepthText} cm";
         public string FormattedGlobalDimensions => $"Width: {WidthText} cm, Depth: {DepthText} cm";
-        public string SelectedAccessories => "Doors, Shelves";
+        public string SelectedAccessories => "Doors";
         public string EstimatedPrice => "€150.00";
         
         /// <summary>
@@ -725,7 +708,6 @@ namespace KitBoxDesigner.ViewModels
                 var standardDepths = new[] { 30.0, 35.0, 40.0, 45.0, 50.0, 60.0 };                // Load parts
                 var allParts = await _partService.GetAllPartsAsync();
                 var doors = allParts?.Where(p => p.Category == PartCategory.Door) ?? Enumerable.Empty<Part>();
-                var shelves = allParts?.Where(p => p.Category == PartCategory.PanelHorizontal) ?? Enumerable.Empty<Part>();
                 var panels = allParts?.Where(p => p.Category == PartCategory.PanelVertical || p.Category == PartCategory.PanelBack) ?? Enumerable.Empty<Part>();
 
                 // Update UI on main thread
@@ -748,10 +730,6 @@ namespace KitBoxDesigner.ViewModels
                         AvailableDoors.Clear();
                         foreach (var door in doors)
                             AvailableDoors.Add(door);
-
-                        AvailableShelves.Clear();
-                        foreach (var shelf in shelves)
-                            AvailableShelves.Add(shelf);
 
                         AvailablePanels.Clear();
                         foreach (var panel in panels)

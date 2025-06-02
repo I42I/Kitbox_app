@@ -125,21 +125,21 @@ public class MainWindowViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Navigate to stock management (tabbed view)
+    /// Navigate to stock management (inventory view)
     /// </summary>
     private void ShowStockManagement()
     {
         try
         {
             EnsureUIThread(() => {
-                CurrentViewModel = new StockManagementViewModel(_partService, _stockService);
+                CurrentViewModel = new InventoryViewModel(_partService, _stockService);
                 UpdateNavigationState(stockManagement: true);
-                StatusMessage = "Gestion du Stock - Inventaire et vérification du stock";
+                StatusMessage = "Stock Management - Inventory and stock control";
             });
         }
         catch (Exception ex)
         {
-            HandleNavigationError("gestion du stock", ex);
+            HandleNavigationError("stock management", ex);
         }
     }
 
